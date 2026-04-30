@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloraSmart - Iniciar Sesión</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <div class="brand">
+            <img src="{% static 'images/logo.png' %}" alt="Logo FloraSmart" class="logo">
+            <h1 class="brand-name">FloraSmart</h1>
+        </div>
+        
+        <h2 class="welcome-title">Bienvenido a FloraSmart</h2>
+        <p class="role-text">Plataforma B2B de Comercio de Flores</p>
+
+        <!-- CAMBIO 1: Agregamos method="POST" y action -->
+        <form method="POST" action="{% url 'login' %}">
+            <!-- CAMBIO 2: Agregamos el token de seguridad de Django -->
+            {% csrf_token %}
+
+            <div class="input-field">
+                <i class="fa-regular fa-user"></i>
+                <!-- CAMBIO 3: Agregamos name="email" para que Django lo reconozca -->
+                <input type="email" name="email" placeholder="Correo Electrónico" required>
+            </div>
+            <div class="input-field">
+                <i class="fa-solid fa-lock"></i>
+                <!-- CAMBIO 4: Agregamos name="password" -->
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <i class="fa-regular fa-eye-slash toggle-pass"></i>
+            </div>
+
+            <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+
+            <button type="submit" class="login-btn">Iniciar Sesión</button>
+        </form>
+
+       <!-- MAL: <a href="#">Registrarse</a> -->
+<!-- BIEN: -->
+<p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+    </div>
+</body>
+</html>

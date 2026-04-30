@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="login-card" style="width: 500px; margin: auto;">
+    <h2 class="welcome-title">Registrar Nueva Variedad</h2>
+    <p class="role-text">Completa los datos de tu cosecha para FloraSmart</p>
+
+    <form method="POST" enctype="multipart/form-data"> <!-- ¡IMPORTANTE! enctype para imágenes -->
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="login-btn">Publicar Flor</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <header class="home-header">
+        <h1>Bienvenido, {{ user.username }}</h1>
+        <p class="badge">{{ user.get_rol_display }}</p>
+    </header>
+
+    {% if user.rol == 'floricultor' %}
+        <!-- INTERFAZ PARA EL PRODUCTOR -->
+        <section class="dashboard-section">
+            <div class="info-card">
+                <h3>Finca/Empresa: {{ user.nombre_empresa_o_finca|default:"Nombre no registrado" }}</h3>
+                <p>Gestiona tus cultivos y pedidos en tiempo real.</p>
+            </div>
+
+            <div class="action-grid">
+                <div class="action-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <h4>Publicar Flores</h4>
+                    <p>Sube nuevas variedades de tu inventario.</p>
+                    <a href="#" class="btn-action">Agregar Producto</a>
+                </div>
+                <div class="action-card">
+                    <i class="fas fa-list-ul"></i>
+                    <h4>Mis Pedidos</h4>
+                    <p>Revisa las solicitudes de tus compradores.</p>
+                    <a href="#" class="btn-action">Ver Pedidos</a>
+                </div>
+            </div>
+        </section>
+
+    {% else %}
+        <!-- INTERFAZ PARA EL COMPRADOR (B2B o B2C) -->
+        <section class="marketplace-section">
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar rosas, claveles, astromelias...">
+                <button class="btn-search">Buscar</button>
+            </div>
+
+            <h2>Flores frescas de nuestros productores</h2>
+            <div class="product-gallery">
+                <!-- Aquí se cargarán dinámicamente las flores en el próximo sprint -->
+                <p class="empty-msg">Explora la red floricultora más grande de Colombia.</p>
+            </div>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

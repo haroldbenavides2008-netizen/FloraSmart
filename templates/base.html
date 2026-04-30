@@ -1,0 +1,28 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FloraSmart - Conexión Directa</title>
+   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <nav>
+    <a href="{% url 'home' %}" class="logo">FloraSmart</a>
+    <div class="nav-links">
+        {% if user.is_authenticated %}
+            <span class="user-info">Hola, {{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="btn-logout">Cerrar Sesión</a>
+        {% else %}
+            <a href="{% url 'login' %}">Iniciar Sesión</a>
+        {% endif %}
+    </div>
+</nav>
+
+    {% block content %}
+    <!-- Aquí se inyectará el contenido de home.html -->
+    {% endblock %}
+</body>
+</html>

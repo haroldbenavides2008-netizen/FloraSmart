@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FloraSmart - Registro</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <h2 class="welcome-title">Crea tu cuenta</h2>
+        <p class="role-text">Únete a la red floricultora más grande de Colombia</p>
+
+        <!-- Agrega esto arriba del formulario -->
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+        <!-- Cambia temporalmente la etiqueta form por esta -->
+         <form method="POST" action="/registro/">
+            {% csrf_token %}
+            
+            <!-- Selector de Rol: Vital para diferenciar funciones -->
+            <div class="input-field">
+                <select name="rol" required>
+                    <option value="" disabled selected>Selecciona tu perfil</option>
+                    <option value="floricultor">Soy Floricultor / Productor</option>
+                    <option value="comprador_b2c">Soy Comprador (Cliente Final)</option>
+                    <option value="comprador_b2b">Soy Comprador Mayorista (B2B)[cite: 1]</option>
+                </select>
+            </div>
+
+            <div class="input-field">
+                <input type="text" name="username" placeholder="Nombre de usuario" required>
+            </div>
+
+            <div class="input-field">
+                <input type="email" name="email" placeholder="Correo Electrónico" required>
+            </div>
+
+            <div class="input-field">
+                <input type="password" name="password" placeholder="Contraseña" required>
+            </div>
+
+            <!-- Campo opcional para empresas o fincas -->
+            <div class="input-field">
+                <input type="text" name="empresa" placeholder="Nombre de tu Finca o Empresa (Opcional)">
+            </div>
+
+            <!-- Reemplaza tu botón actual por este exactamente -->
+             <button type="submit" class="login-btn" id="btn-registro">
+                Registrarse ahora
+            </button>
+            <script>
+            document.querySelector('form').onsubmit = function() {
+                console.log("Formulario enviado a FloraSmart");
+                };
+                </script>
+        
+        <p class="signup-text">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+    </div>
+</body>
+</html>
