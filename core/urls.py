@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from usuarios import views  # Importamos todo el módulo de vistas para mayor orden
+from django.conf import settings
+from django.conf.urls.static import static
+from usuarios import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +28,22 @@ urlpatterns = [
     path('registro/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
     
-    # Rutas de la Aplicación (Dashboard de FloraSmart)
+    # Rutas de la Aplicación (Dashboard)
     path('home/', views.home_view, name='home'),
     path('agregar-producto/', views.agregar_producto, name='agregar_producto'),
+    
+    # Rutas del Mercado y Pedidos
+    path('mercado/', views.mercado_view, name='mercado'),
+    path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
+    
+    # MOVIDA AQUÍ: Ahora Django sí la encontrará
+    path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
+    
+    # Rutas del Chat
+    path('chats/', views.lista_chats_view, name='lista_chats'),
+    path('chat/<int:receptor_id>/', views.chat_view, name='chat'),
 ]
+
+# Configuración para servir archivos multimedia (Fotos de las flores)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

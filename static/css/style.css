@@ -1,6 +1,19 @@
+/* =========================================
+   1. VARIABLES Y CONFIGURACIÓN BASE
+   ========================================= */
 :root {
+    /* Colores del Login y Generales */
     --green-main: #4a9d4d;
+    --green-dark: #2d5a27;
     --text-gray: #666;
+    
+    /* Colores del Dashboard (base.html) */
+    --primary-green: #2ecc71;
+    --dark-green: #27ae60;
+    --light-bg: #f4f7f6;
+    --white: #ffffff;
+    --text-dark: #2c3e50;
+    --shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 body, html {
@@ -9,7 +22,11 @@ body, html {
     font-family: 'Segoe UI', sans-serif;
 }
 
+/* =========================================
+   2. ESTILOS DEL LOGIN (SIN CAMBIOS)
+   ========================================= */
 .login-page {
+    height: 100%;
     background: url('../images/fondo.jpg') no-repeat center center fixed;
     background-size: cover;
     display: flex;
@@ -28,25 +45,14 @@ body, html {
 
 .brand { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
 .logo { width: 40px; margin-right: 10px; }
-.brand-name { color: #2d5a27; font-size: 24px; margin: 0; }
+.brand-name { color: var(--green-dark); font-size: 24px; margin: 0; }
 
 .welcome-title { color: #333; margin-bottom: 5px; font-size: 22px; }
 .role-text { color: var(--text-gray); margin-bottom: 2rem; font-size: 14px; }
 
-.input-field {
-    position: relative;
-    margin-bottom: 1rem;
-}
-
-.input-field i {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
-}
-
-.input-field input {
+.input-field { position: relative; margin-bottom: 1rem; }
+.input-field i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
+.input-field input, .input-field select {
     width: 100%;
     padding: 12px 15px 12px 45px;
     border: 1px solid #ddd;
@@ -65,73 +71,108 @@ body, html {
     font-weight: 600;
     cursor: pointer;
     margin-top: 1.5rem;
-}
-
-.forgot-link {
-    display: block;
-    text-align: right;
-    color: #2d5a27;
-    font-size: 13px;
-    text-decoration: none;
-    margin-top: 10px;
-}
-/* Añade esto para que el select se vea igual que los inputs */
-.input-field select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background-color: white;
-    color: #333;
-    font-family: inherit;
-    cursor: pointer;
-}
-
-/* Mejora para el botón al pasar el mouse */
-.login-btn:hover {
-    background: #3e8a41;
     transition: 0.3s;
 }
-/*nase.html*/
-/* FloraSmart - Estilos Globales */
-:root {
-    --primary-green: #2ecc71;
-    --dark-green: #27ae60;
-    --light-bg: #f4f7f6;
-    --white: #ffffff;
-    --text-dark: #2c3e50;
-    --shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
 
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--light-bg);
-    margin: 0;
-    color: var(--text-dark);
-}
+.login-btn:hover { background: #3e8a41; }
 
-/* Navegación */
-nav {
-    background: var(--white);
-    padding: 1rem 5%;
+/* =========================================
+   3. LAYOUT DEL DASHBOARD (ACTUALIZADO)
+   ========================================= */
+
+/* Contenedor principal: Sidebar + Contenido */
+.market-layout {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    height: 100vh; /* Ocupa el 100% de la ventana */
+    overflow: hidden;
 }
 
-.logo {
-    color: var(--primary-green);
-    font-size: 1.6rem;
-    font-weight: 800;
+/* Sidebar: Ahora va de arriba a abajo */
+.market-sidebar {
+    width: 260px;
+    background: var(--white);
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    padding: 30px 25px; /* Más espacio arriba para que luzca mejor */
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.sidebar-logo { width: 30px; height: auto; margin-right: 12px; }
+.sidebar-brand-name {
+    color: var(--green-dark);
+    font-size: 20px;
+    font-weight: bold;
     text-decoration: none;
 }
 
-/* Dashboard del Floricultor */
+/* Menú de navegación */
+.nav-menu {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 10px;
+}
+
+.sidebar-link {
+    text-decoration: none;
+    color: var(--text-gray);
+    padding: 14px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.sidebar-link i { width: 20px; text-align: center; }
+
+.sidebar-link:hover, .sidebar-link.active {
+    background-color: #f0f7f0;
+    color: var(--green-main);
+    border-left: 4px solid var(--green-main);
+}
+
+.sidebar-section-title {
+    padding: 20px 25px 10px 25px;
+    font-size: 0.75rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+/* Contenido Principal (Derecha) */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f9fbf9;
+    overflow-y: auto; /* Solo el contenido tiene scroll */
+}
+
+/* Barra superior de usuario interna */
+.top-user-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 20px 40px;
+    background: transparent;
+}
+
+/* =========================================
+   4. COMPONENTES DEL CONTENIDO (CARDS, BOTONES)
+   ========================================= */
 .container {
     max-width: 1100px;
-    margin: 3rem auto;
-    padding: 0 20px;
+    margin: 0 auto;
+    padding: 20px 40px;
 }
 
 .action-grid {
@@ -163,24 +204,393 @@ nav {
     text-decoration: none;
     font-weight: 600;
     margin-top: 15px;
+    transition: 0.3s;
 }
 
-/* Formularios */
-.form-container {
-    background: var(--white);
-    padding: 2rem;
-    border-radius: 12px;
+.btn-action:hover { background: var(--dark-green); }
+
+/* Estilos para el de agregar  Productos */
+.form-container-wrapper {
+    background: white;
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 40px;
+    border-radius: 20px;
     box-shadow: var(--shadow);
-    max-width: 500px;
-    margin: auto;
 }
 
-input, select, textarea {
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.form-header h2 {
+    color: var(--green-dark);
+    margin-bottom: 5px;
+}
+
+.form-header p {
+    color: var(--text-gray);
+    font-size: 14px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.flora-form input, 
+.flora-form textarea, 
+.flora-form select {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
-    border: 1.5px solid #eee;
-    border-radius: 8px;
-    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-family: inherit;
+    transition: 0.3s;
 }
-/**/
+
+.flora-form input:focus {
+    border-color: var(--green-main);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 157, 77, 0.1);
+}
+
+.btn-secondary {
+    text-decoration: none;
+    color: var(--text-gray);
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Contenedor principal con efecto de tarjeta */
+.form-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 20px;
+}
+
+.form-header h2 {
+    color: #2d5a27; /* Verde botánico */
+    margin: 0;
+    font-size: 24px;
+}
+
+.form-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Estilo de las secciones y etiquetas */
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* Estilo para los inputs automáticos de Django */
+.form-section input[type="text"],
+.form-section input[type="number"],
+.form-section input[type="file"],
+.form-section select,
+.form-section textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #e1e1e1;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Evita que el input se salga del contenedor */
+}
+
+.form-section input:focus, .form-section textarea:focus {
+    border-color: #2d5a27;
+    outline: none;
+    box-shadow: 0 0 8px rgba(45, 90, 39, 0.2);
+}
+
+/* Rejilla para campos dobles */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Botones */
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-primary {
+    background-color: #2d5a27;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #1e3d1a;
+}
+
+.btn-secondary {
+    text-decoration: none;
+    color: #888;
+    padding: 12px 20px;
+    font-weight: 500;
+}
+/* css mercado */
+
+/* 1. Reducimos el contenedor para que quepan más por fila */
+.productos-grid {
+    display: grid !important;
+    /* Ajustado a 220px para que sea pequeña como en tu foto */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 220px)) !important; 
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+}
+
+/* 2. La Ficha más esbelta */
+.producto-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* 3. Imagen más baja */
+.image-container {
+    width: 100%;
+    height: 150px; /* Reducimos la altura de la imagen */
+    overflow: hidden;
+    position: relative;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 4. El Corazón Verde Arriba */
+.wishlist-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #28a745; /* Verde brillante */
+    font-size: 12px;
+    z-index: 5;
+}
+
+/* 5. Textos más pequeños para que quepan bien */
+.info-container {
+    padding: 12px;
+}
+
+.flor-nombre {
+    font-size: 1rem; /* Texto más pequeño */
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.precio {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: #666;
+}
+
+/* Precio en Verde Brillante */
+.monto {
+    color: #28a745 !important;
+    font-weight: bold;
+}
+
+.ubicacion {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+/* 6. Botón más compacto y brillante */
+.btn-detalles {
+    background-color: #28a745 !important; /* Verde similar al de tu foto */
+    color: white !important;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: block;
+    transition: 0.3s;
+}
+
+.btn-detalles:hover {
+    background-color: #00ff66 !important;
+}
+
+/* =========================================
+   5. ESTILOS PARA MIS PEDIDOS
+   ========================================= */
+
+/* Contenedor principal de la página */
+.container.mt-4 {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px;
+}
+
+/* Encabezado de la página */
+.fw-bold.text-success {
+    color: var(--green-dark) !important;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-green) !important;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+/* Card de pedidos */
+.card-pedidos {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.card-pedidos .card-body {
+    padding: 0;
+}
+
+/* Tabla de pedidos */
+.table-pedidos {
+    margin-bottom: 0;
+}
+
+.table-pedidos thead th {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+    padding: 15px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-pedidos tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table-pedidos tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-pedidos td {
+    padding: 15px;
+    vertical-align: middle;
+    border: none;
+}
+
+/* Nombre del producto */
+.nombre-producto {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+/* Badge de cantidad */
+.badge-cantidad {
+    background-color: var(--primary-green);
+    color: white;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+}
+
+/* Badge de estado */
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+    color: white;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+}
+
+/* Botón de detalle */
+.btn-outline-success {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+}
+
+/* Mensaje cuando no hay pedidos */
+.text-center.py-5.text-muted {
+    color: var(--text-gray) !important;
+    font-style: italic;
+    font-size: 1.1rem;
+}

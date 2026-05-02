@@ -2,50 +2,67 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <header class="home-header">
-        <h1>Bienvenido, {{ user.username }}</h1>
-        <p class="badge">{{ user.get_rol_display }}</p>
-    </header>
+<div class="home-market-wrapper"> <!-- Nueva clase escudo -->
+    <div class="container">
+        <header class="home-header">
+            <h1>Bienvenido, {{ user.username }}</h1>
+            <p class="badge">{{ user.get_rol_display }}</p>
+        </header>
 
-    {% if user.rol == 'floricultor' %}
-        <!-- INTERFAZ PARA EL PRODUCTOR -->
-        <section class="dashboard-section">
-            <div class="info-card">
-                <h3>Finca/Empresa: {{ user.nombre_empresa_o_finca|default:"Nombre no registrado" }}</h3>
-                <p>Gestiona tus cultivos y pedidos en tiempo real.</p>
-            </div>
-
-            <div class="action-grid">
-                <div class="action-card">
-                    <i class="fas fa-plus-circle"></i>
-                    <h4>Publicar Flores</h4>
-                    <p>Sube nuevas variedades de tu inventario.</p>
-                    <a href="#" class="btn-action">Agregar Producto</a>
+        {% if user.rol == 'floricultor' %}
+            <section class="dashboard-section">
+                <div class="info-card">
+                    <h3>Finca/Empresa: {{ user.nombre_empresa_o_finca|default:"Nombre no registrado" }}</h3>
+                    <p>Gestiona tus cultivos y pedidos en tiempo real.</p>
                 </div>
-                <div class="action-card">
-                    <i class="fas fa-list-ul"></i>
-                    <h4>Mis Pedidos</h4>
-                    <p>Revisa las solicitudes de tus compradores.</p>
-                    <a href="#" class="btn-action">Ver Pedidos</a>
+
+                <div class="action-grid">
+                    <div class="action-card">
+                        <i class="fas fa-plus-circle"></i>
+                        <h4>Publicar Flores</h4>
+                        <p>Sube nuevas variedades de tu inventario.</p>
+                        <a href="{% url 'agregar_producto' %}" class="btn-action">Agregar Producto</a>
+                    </div>
+                    <div class="action-card">
+                        <i class="fas fa-list-ul"></i>
+                        <h4>Mis Pedidos</h4>
+                        <p>Revisa las solicitudes de tus compradores.</p>
+                        <a href="#" class="btn-action">Ver Pedidos</a>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-    {% else %}
-        <!-- INTERFAZ PARA EL COMPRADOR (B2B o B2C) -->
-        <section class="marketplace-section">
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar rosas, claveles, astromelias...">
-                <button class="btn-search">Buscar</button>
-            </div>
+        {% else %}
+            <section class="marketplace-section">
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar rosas, claveles, astromelias...">
+                    <button class="btn-search">Buscar</button>
+                </div>
 
-            <h2>Flores frescas de nuestros productores</h2>
-            <div class="product-gallery">
-                <!-- Aquí se cargarán dinámicamente las flores en el próximo sprint -->
-                <p class="empty-msg">Explora la red floricultora más grande de Colombia.</p>
-            </div>
-        </section>
-    {% endif %}
+                <h2>Flores frescas de nuestros productores</h2>
+                
+                <!-- Contenedor para las tarjetas de la imagen de referencia -->
+                <div class="product-gallery grid-referencia">
+                    {% if productos_mercado %}
+                        {% for producto in productos_mercado %}
+                        <div class="card-floral">
+                            {% if producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre_flor }}">
+                            {% endif %}
+                            <div class="card-floral-body">
+                                <h4>{{ producto.nombre_flor }}</h4>
+                                <p class="precio-ref">Desde ${{ producto.precio_por_tallo }} COP</p>
+                                <p class="ubicacion-ref">📍 {{ producto.floricultor.nombre_empresa_o_finca }}</p>
+                                <button class="btn-ver-detalles">Ver Detalles</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-msg">Explora la red floricultora más grande de Colombia.</p>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

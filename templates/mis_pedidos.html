@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-success">📦 {{ titulo }}</h2>
+        <span class="badge bg-primary">{{ pedidos.count }} registros</span>
+    </div>
+
+    <div class="card card-pedidos shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-pedidos align-middle mb-0">
+                    <thead>
+                        <tr>
+                            {% if request.user.rol == 'floricultor' %}
+                                <th class="ps-4">Cliente</th>
+                            {% endif %}
+                            <th class="ps-4">Producto</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            {% if request.user.rol == 'floricultor' %}
+                                <td class="ps-4">
+                                    <span class="nombre-producto">{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}</span>
+                                    <br><small class="text-muted">{{ pedido.cliente.nombre_empresa_o_finca|default:'Sin finca' }}</small>
+                                </td>
+                            {% endif %}
+                            <td class="ps-4">
+                                <span class="nombre-producto">{{ pedido.producto.nombre_flor }}</span>
+                            </td>
+                            <td><span class="badge rounded-pill badge-cantidad">{{ pedido.cantidad }} u.</span></td>
+                            <td>{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
+                            <td><span class="badge bg-info">{{ pedido.get_estado_display }}</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-success" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detalleModal"
+                                        data-nombre-comprador="{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}"
+                                        data-finca="{{ pedido.cliente.nombre_empresa_o_finca|default:'No especificada' }}"
+                                        data-producto="{{ pedido.producto.nombre_flor }}"
+                                        data-cantidad="{{ pedido.cantidad }}"
+                                        data-fecha="{{ pedido.fecha_pedido|date:'d/m/Y H:i' }}"
+                                        data-estado="{{ pedido.get_estado_display }}">
+                                    Detalle
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{% if request.user.rol == 'floricultor' %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No hay pedidos registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalle del Pedido -->
+<div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleModalLabel">Detalle del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Producto:</strong> <span id="modal-producto"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Cantidad:</strong> <span id="modal-cantidad"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Fecha del Pedido:</strong> <span id="modal-fecha"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Estado:</strong> <span id="modal-estado"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Nombre del Comprador:</strong> <span id="modal-nombre-comprador"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Finca:</strong> <span id="modal-finca"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var detalleModal = document.getElementById('detalleModal');
+    detalleModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var nombreComprador = button.getAttribute('data-nombre-comprador');
+        var finca = button.getAttribute('data-finca');
+        var producto = button.getAttribute('data-producto');
+        var cantidad = button.getAttribute('data-cantidad');
+        var fecha = button.getAttribute('data-fecha');
+        var estado = button.getAttribute('data-estado');
+
+        document.getElementById('modal-nombre-comprador').textContent = nombreComprador;
+        document.getElementById('modal-finca').textContent = finca;
+        document.getElementById('modal-producto').textContent = producto;
+        document.getElementById('modal-cantidad').textContent = cantidad;
+        document.getElementById('modal-fecha').textContent = fecha;
+        document.getElementById('modal-estado').textContent = estado;
+    });
+});
+</script>
+
+{% endblock %}

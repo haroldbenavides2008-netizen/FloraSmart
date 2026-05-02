@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-success">💬 {{ titulo }}</h2>
+        <span class="badge bg-primary">{{ usuarios.count }} conversaciones</span>
+    </div>
+
+    <div class="card card-chats shadow-sm">
+        <div class="card-body">
+            {% if usuarios %}
+                <div class="list-group">
+                    {% for usuario in usuarios %}
+                        <a href="{% url 'chat' usuario.id %}" class="list-group-item list-group-item-action chat-item">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-user-circle"></i> 
+                                        {{ usuario.get_full_name|default:usuario.username }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        {% if usuario.nombre_empresa_o_finca %}
+                                            {{ usuario.nombre_empresa_o_finca }}
+                                        {% else %}
+                                            <em>Sin finca registrada</em>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success">
+                                        {% if usuario.rol == 'floricultor' %}
+                                            <i class="fas fa-leaf"></i> Floricultor
+                                        {% else %}
+                                            <i class="fas fa-shopping-bag"></i> Comprador
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-comment-slash" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p class="mb-0">No hay conversaciones activas aún.</p>
+                    <small class="text-muted">
+                        {% if request.user.rol == 'floricultor' %}
+                            Cuando recibas pedidos, podrás chatear con los clientes aquí.
+                        {% else %}
+                            Realiza un pedido para poder chatear con el vendedor.
+                        {% endif %}
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-chats {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .chat-item {
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        padding: 15px 20px;
+    }
+
+    .chat-item:last-child {
+        border-bottom: none;
+    }
+
+    .chat-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    .chat-item h6 {
+        color: var(--text-dark);
+        margin-bottom: 5px;
+    }
+
+    .chat-item small {
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}

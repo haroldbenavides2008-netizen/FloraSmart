@@ -1,13 +1,69 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="login-card" style="width: 500px; margin: auto;">
-    <h2 class="welcome-title">Registrar Nueva Variedad</h2>
-    <p class="role-text">Completa los datos de tu cosecha para FloraSmart</p>
 
-    <form method="POST" enctype="multipart/form-data"> <!-- ¡IMPORTANTE! enctype para imágenes -->
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block extra_css %}
+
+    
+    
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h2><i class="fas fa-plus-circle"></i> Nuevo Producto Floral</h2>
+        <p>Completa la información para registrar la flor en el sistema.</p>
+    </div>
+
+    <!-- El enctype es vital para que la imagen se guarde en la carpeta /media/ -->
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="login-btn">Publicar Flor</button>
+        
+        <div class="form-section">
+            <label for="{{ form.nombre_flor.id_for_label }}">Nombre de la Flor</label>
+            {{ form.nombre_flor }}
+        </div>
+
+        <div class="form-grid">
+            <div class="form-section">
+                <label for="{{ form.variedad.id_for_label }}">Variedad</label>
+                {{ form.variedad }}
+            </div>
+            <div class="form-section">
+                <label for="{{ form.color.id_for_label }}">Color</label>
+                {{ form.color }}
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-section">
+                <label for="{{ form.precio_por_tallo.id_for_label }}">Precio por Tallo</label>
+                {{ form.precio_por_tallo }}
+            </div>
+            <div class="form-section">
+                <label for="{{ form.cantidad_disponible.id_for_label }}">Cantidad Disponible</label>
+                {{ form.cantidad_disponible }}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label for="{{ form.descripcion.id_for_label }}">Descripción Detallada</label>
+            {{ form.descripcion }}
+        </div>
+
+        <div class="form-section">
+            <label>Imagen del Producto</label>
+            <div class="image-upload-wrapper">
+                {{ form.imagen }}
+                <small>Formatos permitidos: JPG, PNG. Máximo 5MB.</small>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <a href="{% url 'home' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Guardar Producto</button>
+        </div>
     </form>
 </div>
 {% endblock %}

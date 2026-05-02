@@ -79,6 +79,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles' # Para producción
 STATICFILES_DIRS = [
     BASE_DIR / 'static', # Carpeta principal de estáticos en la raíz
 ]
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # 9. Archivos Multimedia (Fotos de las flores y fincas)
 MEDIA_URL = '/media/'

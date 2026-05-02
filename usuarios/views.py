@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from .models import Usuario, Producto
-from .forms import ProductoForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
 from firebase_admin import auth as firebase_auth
-from django.contrib.auth import logout 
+from django.contrib.auth.decorators import login_required
+
+# Importación de modelos y formularios
+from .models import Usuario, Producto, Pedido
+from .forms import ProductoForm
 
 # 1. VISTA DE REGISTRO
 def register_view(request):
@@ -15,14 +18,14 @@ def register_view(request):
         empresa = request.POST.get('empresa')
 
         try:
-            # Crea usuario en Firebase
+            # Registro en Firebase
             firebase_auth.create_user(
                 email=email,
                 password=password,
                 display_name=username
             )
 
-            # Crea usuario en Django
+            # Registro en la base de datos local de Django
             user = Usuario.objects.create_user(
                 username=username,
                 email=email,
@@ -32,15 +35,18 @@ def register_view(request):
             )
             
             login(request, user)
+            messages.success(request, f"¡Bienvenida a FloraSmart, {username}!")
             return redirect('home')
-
         except Exception as e:
-            return render(request, 'register.html', {'error': str(e)})
+            return render(request, 'register.html', {'error': "El correo ya existe o los datos son inválidos."})
 
     return render(request, 'register.html')
 
 # 2. VISTA DE LOGIN
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         email_ingresado = request.POST.get('email')
         password_ingresada = request.POST.get('password')
@@ -53,43 +59,140 @@ def login_view(request):
                 login(request, user)
                 return redirect('home')
             else:
-                return render(request, 'login.html', {'error': 'Contraseña incorrecta'})
+                messages.error(request, "Contraseña incorrecta")
         except Usuario.DoesNotExist:
-            return render(request, 'login.html', {'error': 'El correo no está registrado'})
+            messages.error(request, "El correo no está registrado")
             
     return render(request, 'login.html')
 
-# 3. VISTA DE HOME (Dinamizada por Rol)
+# 3. VISTA DE HOME
 def home_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
     
-    # Si es floricultor, traemos solo SUS productos para su dashboard
     contexto = {}
     if request.user.rol == 'floricultor':
         contexto['mis_productos'] = Producto.objects.filter(floricultor=request.user)
     else:
-        # Si es comprador, traemos TODOS los productos del mercado
-        contexto['productos_mercado'] = Producto.objects.all()
+        contexto['productos_recientes'] = Producto.objects.all().order_by('-fecha_publicacion')[:4]
         
     return render(request, 'home.html', contexto)
 
-# 4. NUEVA VISTA: AGREGAR PRODUCTO
+# 4. AGREGAR PRODUCTO (GESTIÓN FLORICULTOR)
 def agregar_producto(request):
     if not request.user.is_authenticated or request.user.rol != 'floricultor':
+        messages.warning(request, "Solo los floricultores pueden agregar productos.")
         return redirect('home')
 
     if request.method == 'POST':
-        form = ProductoForm(request.POST, request.FILES) # FILES es clave para la foto de la flor
+        form = ProductoForm(request.POST, request.FILES) 
         if form.is_valid():
             producto = form.save(commit=False)
-            producto.floricultor = request.user # Trazabilidad: asignamos el producto a esta finca
+            producto.floricultor = request.user 
             producto.save()
+            messages.success(request, "Producto publicado exitosamente.")
             return redirect('home')
     else:
         form = ProductoForm()
         
-    return render(request, 'agregar_producto.html', {'form': form})
+    return render(request, 'agregar_productos.html', {'form': form})
+
+# 5. LOGOUT
 def logout_view(request):
     logout(request)
-    return redirect('login') # Lo enviamos de vuelta al login tras salir
+    messages.info(request, "Has cerrado sesión correctamente.")
+    return redirect('login') 
+
+# 6. VISTA DEL MERCADO 
+def mercado_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
+    productos = Producto.objects.all().order_by('-fecha_publicacion') 
+    return render(request, 'mercado.html', {'productos': productos})
+
+# 7. REALIZAR PEDIDO
+def realizar_pedido(request, producto_id):
+    if not request.user.is_authenticated:
+        messages.error(request, "Debes iniciar sesión para comprar.")
+        return redirect('login')
+
+    if request.method == 'POST':
+        producto = get_object_or_404(Producto, id=producto_id)
+        
+        if producto.floricultor == request.user:
+            messages.error(request, "No puedes comprar tus propios productos.")
+            return redirect('mercado')
+
+        Pedido.objects.create(
+            cliente=request.user,
+            producto=producto,
+            cantidad=1  
+        )
+        
+        messages.success(request, f"¡Pedido solicitado! Has pedido {producto.nombre_flor}.")
+        return redirect('mis_pedidos') 
+    
+    return redirect('mercado')
+
+# 8. VISTA DE MIS PEDIDOS / PEDIDOS RECIBIDOS
+def mis_pedidos_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    if request.user.rol == 'floricultor':
+        pedidos = Pedido.objects.filter(producto__floricultor=request.user).order_by('-fecha_pedido')
+        titulo = "Pedidos Recibidos"
+    else:
+        pedidos = Pedido.objects.filter(cliente=request.user).order_by('-fecha_pedido')
+        titulo = "Mis Pedidos"
+    
+    return render(request, 'mis_pedidos.html', {'pedidos': pedidos, 'titulo': titulo})
+
+# 9. VISTA DE LISTA DE CHATS
+@login_required
+def lista_chats_view(request):
+    """
+    Muestra la lista de usuarios con los que el usuario actual puede chatear.
+    """
+    if request.user.rol == 'floricultor':
+        # Para floricultores: mostrar clientes que han comprado sus productos
+        usuarios_chat = Usuario.objects.filter(
+            mis_pedidos_realizados__producto__floricultor=request.user
+        ).distinct().order_by('-mis_pedidos_realizados__fecha_pedido')
+    else:
+        # Para clientes: mostrar floricultores cuyas flores han comprado
+        usuarios_chat = Usuario.objects.filter(
+            mis_productos__pedidos_del_producto__cliente=request.user,
+            rol='floricultor'
+        ).distinct().order_by('-mis_productos__pedidos_del_producto__fecha_pedido')
+    
+    contexto = {
+        'usuarios': usuarios_chat,
+        'titulo': 'Chats'
+    }
+    return render(request, 'lista_chats.html', contexto)
+
+# 10. VISTA DE CHAT INTEGRADA
+@login_required
+def chat_view(request, receptor_id):
+    """
+    Gestiona la comunicación en tiempo real entre compradores y floricultores de FloraSmart.
+    """
+    receptor = get_object_or_404(Usuario, id=receptor_id)
+    
+    if receptor == request.user:
+        messages.warning(request, "No puedes chatear contigo mismo.")
+        return redirect('lista_chats')
+
+    # Generamos un ID de sala único y consistente
+    ids_ordenados = sorted([request.user.id, receptor.id])
+    sala_id = f"chat_{ids_ordenados[0]}_{ids_ordenados[1]}"
+    
+    contexto = {
+        'receptor': receptor,
+        'sala_id': sala_id,
+        'titulo': f"Chat con {receptor.username}"
+    }
+    
+    return render(request, 'chat.html', contexto)

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-# PRIMERO: El modelo de Usuario (el que ya tenías)
+# PRIMERO: El modelo de Usuario
 class Usuario(AbstractUser):
     ROLES = (
         ('floricultor', 'Floricultor / Productor'),
@@ -23,11 +23,12 @@ class Usuario(AbstractUser):
         blank=True,
     )
 
-# SEGUNDO: El modelo de Producto (DEBAJO de Usuario)
+    def __str__(self):
+        return f"{self.username} - {self.get_rol_display()}"
+
+# SEGUNDO: El modelo de Producto
 class Producto(models.Model):
-    # Asegúrate de que esta línea tenga exactamente 4 espacios al inicio
     floricultor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mis_productos')
-    
     nombre_flor = models.CharField(max_length=50)
     variedad = models.CharField(max_length=50, blank=True)
     color = models.CharField(max_length=30)
@@ -38,4 +39,26 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nombre_flor} - {self.floricultor.nombre_empresa_o_finca}"
+        return f"{self.nombre_flor} - {self.floricultor.nombre_empresa_o_finca if self.floricultor.nombre_empresa_o_finca else 'Sin Finca'}"
+
+# TERCERO: El modelo de Pedido (AQUÍ ESTÁ EL ARREGLO)
+class Pedido(models.Model):
+    ESTADOS = (
+        ('pendiente', 'Pendiente'),
+        ('en_camino', 'En Camino'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
+    )
+
+    cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mis_pedidos_realizados')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='pedidos_del_producto')
+    cantidad = models.PositiveIntegerField(default=1)
+    fecha_pedido = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    notas = models.TextField(blank=True, null=True)
+
+    def total_pagar(self):
+        return self.cantidad * self.producto.precio_por_tallo
+
+    def __str__(self):
+        return f"Pedido #{self.id} - {self.cliente.username}"
