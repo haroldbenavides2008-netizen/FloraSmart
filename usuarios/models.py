@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-# PRIMERO: El modelo de Usuario
+#  El modelo de Usuario
 class Usuario(AbstractUser):
     ROLES = (
         ('floricultor', 'Floricultor / Productor'),
@@ -26,7 +26,7 @@ class Usuario(AbstractUser):
     def __str__(self):
         return f"{self.username} - {self.get_rol_display()}"
 
-# SEGUNDO: El modelo de Producto
+#El modelo de Producto
 class Producto(models.Model):
     floricultor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mis_productos')
     nombre_flor = models.CharField(max_length=50)
@@ -41,7 +41,7 @@ class Producto(models.Model):
     def __str__(self):
         return f"{self.nombre_flor} - {self.floricultor.nombre_empresa_o_finca if self.floricultor.nombre_empresa_o_finca else 'Sin Finca'}"
 
-# TERCERO: El modelo de Pedido (AQUÍ ESTÁ EL ARREGLO)
+# : El modelo de Pedido
 class Pedido(models.Model):
     ESTADOS = (
         ('pendiente', 'Pendiente'),
