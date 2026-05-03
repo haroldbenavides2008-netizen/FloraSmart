@@ -1,0 +1,31 @@
+/* Estilos Profesionales para Mis Pedidos */
+.card-pedidos {
+    border-radius: 15px;
+    overflow: hidden;
+    border: none;
+}
+
+.table-pedidos thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+.table-pedidos tbody tr:hover {
+    background-color: #f1f8f5; /* Un toque verde suave para FloraSmart */
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.nombre-producto {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.badge-cantidad {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}

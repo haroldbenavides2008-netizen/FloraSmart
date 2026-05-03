@@ -36,10 +36,8 @@ urlpatterns = [
     path('mercado/', views.mercado_view, name='mercado'),
     path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
     
-    # MOVIDA AQUÍ: Ahora Django sí la encontrará
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
     
-    # Rutas del Chat
     path('chats/', views.lista_chats_view, name='lista_chats'),
     path('chat/<int:receptor_id>/', views.chat_view, name='chat'),
 ]

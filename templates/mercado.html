@@ -409,11 +409,12 @@
             </div>
 
             <div class="ordenador">
-                <label for="sortSelect">Ordenar por:</label>
+        
                 <select id="sortSelect" onchange="ordenarProductos()">
                     <option value="reciente">Más recientes</option>
                     <option value="precio-asc">Precio: menor a mayor</option>
                     <option value="precio-desc">Precio: mayor a menor</option>
+                  
                 </select>
             </div>
         </div>
@@ -435,13 +436,14 @@
 
             <div class="filtro-grupo">
                 <h4>Colores</h4>
-                <div class="color-grid">
-                    {% for color in colores %}
-                    <label class="color-box" style="background-color: {{ color|lower }};">
-                        <input type="checkbox" class="filtro-color" value="{{ color }}">
-                    </label>
-                    {% endfor %}
-                </div>
+       <div class="color-grid">
+    {% for color in colores %}
+    <label class="color-box" 
+        style="background-color: {% if color|lower == 'rosado' %}pink{% elif color|lower == 'rojo' %}red{% elif color|lower == 'amarillo' %}yellow{% else %}{{ color }}{% endif %};">
+        <input type="checkbox" class="filtro-color" value="{{ color }}">
+    </label>
+    {% endfor %}
+</div>
             </div>
 
             <div class="filtros-footer">
@@ -470,7 +472,7 @@
                         <p class="ubicacion"><i class="fas fa-map-marker-alt"></i> {{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local' }}</p>
                         <form action="{% url 'realizar_pedido' producto.id %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="btn-detalles">Ver detalles</button>
+                            <button type="submit" class="btn-detalles">agregar compra</button>
                         </form>
                     </div>
                 </article>

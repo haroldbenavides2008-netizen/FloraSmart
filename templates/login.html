@@ -16,21 +16,21 @@
         </div>
         
         <h2 class="welcome-title">Bienvenido a FloraSmart</h2>
-        <p class="role-text">Plataforma B2B de Comercio de Flores</p>
+        <p class="role-text">Plataforma  de Comercio de Flores</p>
 
-        <!-- CAMBIO 1: Agregamos method="POST" y action -->
+        
         <form method="POST" action="{% url 'login' %}">
-            <!-- CAMBIO 2: Agregamos el token de seguridad de Django -->
+            
             {% csrf_token %}
 
             <div class="input-field">
                 <i class="fa-regular fa-user"></i>
-                <!-- CAMBIO 3: Agregamos name="email" para que Django lo reconozca -->
+             
                 <input type="email" name="email" placeholder="Correo Electrónico" required>
             </div>
             <div class="input-field">
                 <i class="fa-solid fa-lock"></i>
-                <!-- CAMBIO 4: Agregamos name="password" -->
+            
                 <input type="password" name="password" placeholder="Contraseña" required>
                 <i class="fa-regular fa-eye-slash toggle-pass"></i>
             </div>
@@ -40,8 +40,6 @@
             <button type="submit" class="login-btn">Iniciar Sesión</button>
         </form>
 
-       <!-- MAL: <a href="#">Registrarse</a> -->
-<!-- BIEN: -->
 <p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
     </div>
 </body>
