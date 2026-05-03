@@ -62,3 +62,17 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f"Pedido #{self.id} - {self.cliente.username}"
+
+# MODELO PARA MENSAJES DEL CHAT
+class MensajeChat(models.Model):
+    emisor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mensajes_enviados')
+    receptor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='mensajes_recibidos')
+    contenido = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    leido = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['fecha_envio']
+
+    def __str__(self):
+        return f"Mensaje de {self.emisor.username} a {self.receptor.username}"

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
+from django.db.models import Q
 from firebase_admin import auth as firebase_auth
 from django.contrib.auth.decorators import login_required
 
 # Importación de modelos y formularios
-from .models import Usuario, Producto, Pedido
+from .models import Usuario, Producto, Pedido, MensajeChat
 from .forms import ProductoForm
 
 # 1. VISTA DE REGISTRO
@@ -108,8 +109,18 @@ def mercado_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
         
-    productos = Producto.objects.all().order_by('-fecha_publicacion') 
-    return render(request, 'mercado.html', {'productos': productos})
+    productos = Producto.objects.all().order_by('-fecha_publicacion')
+    
+    # Obtener categorías y colores únicos para los filtros
+    categorias = Producto.objects.values_list('nombre_flor', flat=True).distinct().order_by('nombre_flor')
+    colores = Producto.objects.values_list('color', flat=True).distinct().order_by('color')
+    
+    contexto = {
+        'productos': productos,
+        'categorias': categorias,
+        'colores': colores
+    }
+    return render(request, 'mercado.html', contexto)
 
 # 7. REALIZAR PEDIDO
 def realizar_pedido(request, producto_id):
@@ -189,10 +200,28 @@ def chat_view(request, receptor_id):
     ids_ordenados = sorted([request.user.id, receptor.id])
     sala_id = f"chat_{ids_ordenados[0]}_{ids_ordenados[1]}"
     
+    # Si es POST, guardar el mensaje
+    if request.method == 'POST':
+        contenido = request.POST.get('contenido', '').strip()
+        if contenido:
+            MensajeChat.objects.create(
+                emisor=request.user,
+                receptor=receptor,
+                contenido=contenido
+            )
+        return redirect('chat', receptor_id=receptor_id)
+    
+    # Obtener todos los mensajes entre estos dos usuarios
+    mensajes = MensajeChat.objects.filter(
+        (Q(emisor=request.user) & Q(receptor=receptor)) |
+        (Q(emisor=receptor) & Q(receptor=request.user))
+    ).order_by('fecha_envio')
+    
     contexto = {
         'receptor': receptor,
         'sala_id': sala_id,
-        'titulo': f"Chat con {receptor.username}"
+        'titulo': f"Chat con {receptor.username}",
+        'mensajes': mensajes
     }
     
     return render(request, 'chat.html', contexto)

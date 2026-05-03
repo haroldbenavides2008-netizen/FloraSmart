@@ -91,3 +91,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # 10. Configuración de CORS (Para desarrollo)
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+# 11. Configuración de Claves Primarias por Defecto
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
