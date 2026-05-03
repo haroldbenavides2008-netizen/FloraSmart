@@ -11,16 +11,16 @@
         <h2 class="welcome-title">Crea tu cuenta</h2>
         <p class="role-text">Únete a la red floricultora más grande de Colombia</p>
 
-        <!-- Agrega esto arriba del formulario -->
+     
 {% if error %}
     <p style="color: red;">{{ error }}</p>
 {% endif %}
 
-        <!-- Cambia temporalmente la etiqueta form por esta -->
+        
          <form method="POST" action="/registro/">
             {% csrf_token %}
             
-            <!-- Selector de Rol: Vital para diferenciar funciones -->
+            <!-- Selector de Rol:  -->
             <div class="input-field">
                 <select name="rol" required>
                     <option value="" disabled selected>Selecciona tu perfil</option>
@@ -42,12 +42,12 @@
                 <input type="password" name="password" placeholder="Contraseña" required>
             </div>
 
-            <!-- Campo opcional para empresas o fincas -->
+            <!-- Campo para empresas o fincas -->
             <div class="input-field">
                 <input type="text" name="empresa" placeholder="Nombre de tu Finca o Empresa (Opcional)">
             </div>
 
-            <!-- Reemplaza tu botón actual por este exactamente -->
+          
              <button type="submit" class="login-btn" id="btn-registro">
                 Registrarse ahora
             </button>
