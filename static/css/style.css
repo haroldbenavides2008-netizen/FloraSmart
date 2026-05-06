@@ -101,16 +101,31 @@ body, html {
 .sidebar-brand {
     display: flex;
     align-items: center;
-    padding: 30px 25px; /* Más espacio arriba para que luzca mejor */
-    border-bottom: 1px solid #f8f8f8;
+    gap: 10px;
+    padding: 24px 24px;
+    border-bottom: 1px solid #e6f0e7;
+    background-color: #f6fbf6;
 }
 
-.sidebar-logo { width: 30px; height: auto; margin-right: 12px; }
+.sidebar-logo {
+    width: 34px;
+    height: auto;
+    margin-right: 10px;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12));
+}
+
 .sidebar-brand-name {
-    color: var(--green-dark);
-    font-size: 20px;
-    font-weight: bold;
+    color: #23673b;
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.24px;
     text-decoration: none;
+    background: linear-gradient(135deg, #3b8e54 0%, #2d6f3f 40%, #6cbc78 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
 /* Menú de navegación */
