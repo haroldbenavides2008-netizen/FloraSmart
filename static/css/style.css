@@ -35,17 +35,59 @@ body, html {
 }
 
 .login-card {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 380px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    padding: 2.5rem 2rem;
+    border-radius: 28px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.14);
+    width: 400px;
     text-align: center;
+    backdrop-filter: blur(14px);
 }
 
-.brand { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-.logo { width: 40px; margin-right: 10px; }
-.brand-name { color: var(--green-dark); font-size: 24px; margin: 0; }
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    width: 52px;
+    margin-right: 8px;
+    background-color: transparent !important;
+    display: block;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: none;
+}
+
+.sidebar-logo {
+    width: 38px;
+    height: auto;
+    margin-right: 10px;
+    background-color: transparent !important;
+    display: block;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: none;
+}
+
+.brand-name {
+    color: #23673b;
+    font-family: 'Poppins', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.24px;
+    margin: 0;
+    text-decoration: none;
+    background: linear-gradient(135deg, #3b8e54 0%, #2d6f3f 40%, #6cbc78 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
 
 .welcome-title { color: #333; margin-bottom: 5px; font-size: 22px; }
 .role-text { color: var(--text-gray); margin-bottom: 2rem; font-size: 14px; }
@@ -112,6 +154,8 @@ body, html {
     height: auto;
     margin-right: 10px;
     filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12));
+    background: transparent;
+    display: block;
 }
 
 .sidebar-brand-name {
