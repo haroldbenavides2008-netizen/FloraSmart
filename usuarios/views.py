@@ -135,13 +135,22 @@ def realizar_pedido(request, producto_id):
             messages.error(request, "No puedes comprar tus propios productos.")
             return redirect('mercado')
 
+        # Obtener cantidad del POST (del modal), por defecto 1
+        cantidad = int(request.POST.get('cantidad', 1))
+        
+        # Validar cantidad
+        if cantidad < 1:
+            cantidad = 1
+        if cantidad > producto.cantidad_disponible:
+            cantidad = producto.cantidad_disponible
+
         Pedido.objects.create(
             cliente=request.user,
             producto=producto,
-            cantidad=1  
+            cantidad=cantidad  
         )
         
-        messages.success(request, f"¡Pedido solicitado! Has pedido {producto.nombre_flor}.")
+        messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad} tallo(s) de {producto.nombre_flor}.")
         return redirect('mis_pedidos') 
     
     return redirect('mercado')

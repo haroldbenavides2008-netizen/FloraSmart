@@ -390,6 +390,304 @@
                 top: auto;
             }
         }
+
+        /* ===== ESTILOS DEL MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-overlay.activo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            padding: 36px 32px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 32px 64px rgba(15, 23, 42, 0.18);
+            animation: slideUp 0.35s ease;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: flex-start;
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3f8f3f 0%, #2d6f3f 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .modal-title-group {
+            flex: 1;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+            line-height: 1.3;
+        }
+
+        .modal-precio {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3f8f3f;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+        }
+
+        .modal-info {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 28px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .cantidad-selector {
+            display: grid;
+            gap: 14px;
+        }
+
+        .cantidad-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cantidad-control {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .cantidad-btn {
+            width: 44px;
+            height: 44px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            color: #3f8f3f;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cantidad-btn:hover {
+            background: #f1f5f9;
+            border-color: #3f8f3f;
+            transform: scale(1.05);
+        }
+
+        .cantidad-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cantidad-input {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #f1f5f9 100%);
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .total-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .total-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .total-final {
+            border-top: 1px solid rgba(15, 23, 42, 0.1);
+            padding-top: 12px;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
+
+        .total-final-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .total-final-value {
+            font-size: 18px;
+            font-weight: 900;
+            color: #3f8f3f;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-cancelar {
+            padding: 14px 20px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #475569;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancelar:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .btn-confirmar {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #3f8f3f 0%, #2d6f3f 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 12px 24px rgba(63, 143, 63, 0.25);
+        }
+
+        .btn-confirmar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(63, 143, 63, 0.35);
+        }
+
+        .btn-confirmar:active {
+            transform: translateY(0);
+        }
+
+        .btn-confirmar:disabled {
+            background: #cbd5e1;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stock-agotado {
+            text-align: center;
+            padding: 20px;
+            color: #dc2626;
+            font-weight: 600;
+        }
     </style>
 {% endblock %}
 
@@ -475,10 +773,7 @@
                         <h3 class="flor-nombre">{{ producto.nombre_flor }}{% if producto.variedad %} {{ producto.variedad }}{% endif %}</h3>
                         <p class="precio">Desde <span class="monto">${{ producto.precio_por_tallo }} COP</span></p>
                         <p class="ubicacion"><i class="fas fa-map-marker-alt"></i> {{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local' }}</p>
-                        <form action="{% url 'realizar_pedido' producto.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-detalles">agregar compra</button>
-                        </form>
+                        <button type="button" class="btn-detalles" onclick="abrirModal({{ producto.id }}, '{{ producto.nombre_flor }}{% if producto.variedad %} {{ producto.variedad }}{% endif %}', {{ producto.precio_por_tallo }}, {{ producto.cantidad_disponible|default:'0' }})">agregar compra</button>
                     </div>
                 </article>
                 {% endfor %}
@@ -554,5 +849,181 @@
 
         cards.forEach(card => grid.appendChild(card));
     }
+</script>
+
+<!-- MODAL DE COMPRA -->
+<div class="modal-overlay" id="modalCompra">
+    <div class="modal-content">
+        <button type="button" class="modal-close" onclick="cerrarModal()">✕</button>
+        
+        <div class="modal-header">
+            <div class="modal-icon">🌸</div>
+            <div class="modal-title-group">
+                <h2 class="modal-title" id="modalNombre">Flor</h2>
+                <p class="modal-precio" id="modalPrecio">$0 COP</p>
+            </div>
+        </div>
+
+        <div class="modal-info">
+            <div class="info-row">
+                <span class="info-label">Stock disponible:</span>
+                <span class="info-value" id="modalStock">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Floricultor:</span>
+                <span class="info-value" id="modalFloricultor">-</span>
+            </div>
+        </div>
+
+        <div class="cantidad-selector">
+            <label class="cantidad-label">Cantidad (tallos):</label>
+            <div class="cantidad-control">
+                <button type="button" class="cantidad-btn" onclick="decrementarCantidad()">−</button>
+                <input type="number" id="cantidadInput" class="cantidad-input" value="1" min="1" onchange="recalcularTotal()">
+                <button type="button" class="cantidad-btn" onclick="incrementarCantidad()">+</button>
+            </div>
+        </div>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span class="total-label">Precio unitario:</span>
+                <span class="total-value" id="precioUnitario">$0</span>
+            </div>
+            <div class="total-row">
+                <span class="total-label">Cantidad:</span>
+                <span class="total-value" id="cantidadTotal">1</span>
+            </div>
+            <div class="total-final">
+                <span class="total-final-label">Total:</span>
+                <span class="total-final-value" id="totalFinal">$0</span>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button type="button" class="btn-confirmar" id="btnConfirmar" onclick="confirmarCompra()">Confirmar</button>
+        </div>
+        
+        <div class="stock-agotado" id="stockAgotado" style="display: none;">
+            ⚠️ Producto agotado - No hay stock disponible
+        </div>
+    </div>
+</div>
+
+<script>
+    let productoActual = {
+        id: null,
+        nombre: '',
+        precio: 0,
+        stock: 0,
+        floricultor: ''
+    };
+
+    function abrirModal(id, nombre, precio, stock) {
+        console.log('Abriendo modal:', {id, nombre, precio, stock});
+        
+        productoActual = {
+            id: id,
+            nombre: nombre,
+            precio: parseFloat(precio),
+            stock: parseInt(stock),
+            floricultor: 'Cultivo Local'
+        };
+
+        document.getElementById('modalNombre').textContent = nombre;
+        document.getElementById('modalPrecio').textContent = `$${precio.toLocaleString('es-CO')} COP`;
+        document.getElementById('modalStock').textContent = stock;
+        document.getElementById('precioUnitario').textContent = `$${precio.toLocaleString('es-CO')} COP`;
+        document.getElementById('cantidadInput').value = 1;
+        document.getElementById('cantidadInput').max = stock;
+        
+        if (stock === 0) {
+            document.getElementById('btnConfirmar').disabled = true;
+            document.getElementById('stockAgotado').style.display = 'block';
+        } else {
+            document.getElementById('btnConfirmar').disabled = false;
+            document.getElementById('stockAgotado').style.display = 'none';
+        }
+
+        recalcularTotal();
+        document.getElementById('modalCompra').classList.add('activo');
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Modal abierto exitosamente');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalCompra').classList.remove('activo');
+        document.body.style.overflow = 'auto';
+    }
+
+    function incrementarCantidad() {
+        const input = document.getElementById('cantidadInput');
+        const nueva = parseInt(input.value) + 1;
+        if (nueva <= productoActual.stock) {
+            input.value = nueva;
+            recalcularTotal();
+        }
+    }
+
+    function decrementarCantidad() {
+        const input = document.getElementById('cantidadInput');
+        const nueva = parseInt(input.value) - 1;
+        if (nueva >= 1) {
+            input.value = nueva;
+            recalcularTotal();
+        }
+    }
+
+    function recalcularTotal() {
+        const cantidad = parseInt(document.getElementById('cantidadInput').value) || 1;
+        const total = productoActual.precio * cantidad;
+        
+        document.getElementById('cantidadTotal').textContent = cantidad;
+        document.getElementById('totalFinal').textContent = `$${total.toLocaleString('es-CO')}`;
+    }
+
+    function confirmarCompra() {
+        const cantidad = parseInt(document.getElementById('cantidadInput').value);
+        console.log('Confirmar compra - Producto ID:', productoActual.id, 'Cantidad:', cantidad);
+        
+        // Crear formulario oculto y enviar
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/usuarios/realizar_pedido/${productoActual.id}/`;
+        
+        // Buscar CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            form.appendChild(csrfToken.cloneNode(true));
+        } else {
+            console.warn('CSRF token no encontrado');
+        }
+        
+        const cantidadInput = document.createElement('input');
+        cantidadInput.type = 'hidden';
+        cantidadInput.name = 'cantidad';
+        cantidadInput.value = cantidad;
+        form.appendChild(cantidadInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        cerrarModal();
+    }
+
+    // Cerrar modal al hacer click en el overlay
+    document.getElementById('modalCompra').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+
+    // Permitir cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cerrarModal();
+        }
+    });
 </script>
 {% endblock %}
