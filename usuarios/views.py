@@ -2,14 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.db.models import Q
-from firebase_admin import auth as firebase_auth
 from django.contrib.auth.decorators import login_required
 
 # Importación de modelos y formularios
 from .models import Usuario, Producto, Pedido, MensajeChat
 from .forms import ProductoForm
 
-# 1. VISTA DE REGISTRO
+# 1. VISTA DE REGISTRO (SIN FIREBASE)
 def register_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -19,14 +18,8 @@ def register_view(request):
         empresa = request.POST.get('empresa')
 
         try:
-            # Registro en Firebase
-            firebase_auth.create_user(
-                email=email,
-                password=password,
-                display_name=username
-            )
-
-            # Registro en la base de datos local de Django
+            # Creamos el usuario directamente en Django
+            # El email ya no chocará con Firebase
             user = Usuario.objects.create_user(
                 username=username,
                 email=email,
@@ -39,11 +32,12 @@ def register_view(request):
             messages.success(request, f"¡Bienvenida a FloraSmart, {username}!")
             return redirect('home')
         except Exception as e:
-            return render(request, 'register.html', {'error': "El correo ya existe o los datos son inválidos."})
+            # Ahora el error nos dirá exactamente qué campo de Django falló
+            return render(request, 'register.html', {'error': f"Error: {e}"})
 
     return render(request, 'register.html')
 
-# 2. VISTA DE LOGIN
+# 2. VISTA DE LOGIN (ESTÁNDAR DE DJANGO)
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -53,6 +47,7 @@ def login_view(request):
         password_ingresada = request.POST.get('password')
         
         try:
+            # Buscamos por email para obtener el username de Django
             usuario_obj = Usuario.objects.get(email=email_ingresado)
             user = authenticate(request, username=usuario_obj.username, password=password_ingresada)
             
