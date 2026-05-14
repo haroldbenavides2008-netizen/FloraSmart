@@ -115,10 +115,21 @@ def mercado_view(request):
     categorias = Producto.objects.values_list('nombre_flor', flat=True).distinct().order_by('nombre_flor')
     colores = Producto.objects.values_list('color', flat=True).distinct().order_by('color')
     
+    # Crear mapeo de flores a colores para filtrado automático
+    flores_colores = {}
+    for categoria in categorias:
+        flores_colores[categoria] = list(
+            Producto.objects.filter(nombre_flor=categoria)
+                   .values_list('color', flat=True)
+                   .distinct()
+                   .order_by('color')
+        )
+    
     contexto = {
         'productos': productos,
         'categorias': categorias,
-        'colores': colores
+        'colores': colores,
+        'flores_colores': flores_colores
     }
     return render(request, 'mercado.html', contexto)
 

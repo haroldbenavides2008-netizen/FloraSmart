@@ -185,6 +185,7 @@
             position: relative;
             cursor: pointer;
             overflow: hidden;
+            transition: all 0.2s ease;
         }
 
         .color-box input {
@@ -192,6 +193,10 @@
             inset: 0;
             opacity: 0;
             cursor: pointer;
+        }
+
+        .color-box input:disabled {
+            cursor: not-allowed;
         }
 
         .color-box.selected {
@@ -786,6 +791,82 @@
 </div>
 
 <script>
+    // Mapeo de flores a colores desde Django
+    const floresColoresMap = {{ flores_colores|safe }};
+
+    // Inicializar listeners para filtrado automático
+    document.addEventListener('DOMContentLoaded', function() {
+        // Agregar listener a cada checkbox de categoría
+        document.querySelectorAll('.filtro-categoria').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                actualizarColoresDisponibles();
+                aplicarFiltros();
+            });
+        });
+
+        // Agregar listener a cada checkbox de color
+        document.querySelectorAll('.filtro-color').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Actualizar visual del color seleccionado
+                const colorBox = this.parentElement;
+                if (this.checked) {
+                    colorBox.classList.add('selected');
+                } else {
+                    colorBox.classList.remove('selected');
+                }
+                aplicarFiltros();
+            });
+        });
+    });
+
+    // Función para actualizar colores disponibles según la categoría seleccionada
+    function actualizarColoresDisponibles() {
+        const selectedCategories = Array.from(document.querySelectorAll('.filtro-categoria:checked')).map(cb => cb.value);
+        const colorCheckboxes = document.querySelectorAll('.filtro-color');
+        let coloresDisponibles = new Set();
+
+        if (selectedCategories.length > 0) {
+            // Si hay categorías seleccionadas, obtener sus colores
+            selectedCategories.forEach(categoria => {
+                if (floresColoresMap[categoria]) {
+                    floresColoresMap[categoria].forEach(color => {
+                        coloresDisponibles.add(color);
+                    });
+                }
+            });
+
+            // Habilitar solo los colores disponibles de la flor seleccionada
+            colorCheckboxes.forEach(checkbox => {
+                const colorValue = checkbox.value;
+                if (coloresDisponibles.has(colorValue)) {
+                    checkbox.disabled = false;
+                    checkbox.parentElement.style.opacity = '1';
+                    checkbox.parentElement.style.cursor = 'pointer';
+                    // Auto-seleccionar el color si es el único disponible
+                    if (coloresDisponibles.size === 1 && !checkbox.checked) {
+                        checkbox.checked = true;
+                        checkbox.parentElement.classList.add('selected');
+                    }
+                } else {
+                    checkbox.disabled = true;
+                    checkbox.checked = false;
+                    checkbox.parentElement.classList.remove('selected');
+                    checkbox.parentElement.style.opacity = '0.4';
+                    checkbox.parentElement.style.cursor = 'not-allowed';
+                }
+            });
+        } else {
+            // Si no hay categorías seleccionadas, habilitar todos los colores
+            colorCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('selected');
+                checkbox.parentElement.style.opacity = '1';
+                checkbox.parentElement.style.cursor = 'pointer';
+            });
+        }
+    }
+
     function aplicarFiltros() {
         const searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
         const selectedCategory = document.getElementById('categorySelect').value;
@@ -826,7 +907,12 @@
         document.getElementById('categorySelect').value = '';
         document.getElementById('sortSelect').value = 'reciente';
         document.querySelectorAll('.filtro-categoria').forEach(cb => cb.checked = false);
-        document.querySelectorAll('.filtro-color').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.filtro-color').forEach(cb => {
+            cb.checked = false;
+            cb.disabled = false;
+            cb.parentElement.style.opacity = '1';
+            cb.parentElement.style.cursor = 'pointer';
+        });
         document.querySelectorAll('.producto-card').forEach(card => card.style.display = 'block');
         document.getElementById('sin-resultados').style.display = 'none';
         ordenarProductos();
