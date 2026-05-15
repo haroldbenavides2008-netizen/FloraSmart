@@ -143,6 +143,16 @@ def realizar_pedido(request, producto_id):
 
         # Obtener cantidad del POST (del modal), por defecto 1
         cantidad = int(request.POST.get('cantidad', 1))
+        direccion = request.POST.get('direccion_entrega', '').strip()
+        notas_adicionales = request.POST.get('notas_adicionales', '').strip()
+
+        if not direccion:
+            messages.error(request, "Debes ingresar la dirección de entrega para completar la compra.")
+            return redirect('mercado')
+
+        if producto.cantidad_disponible <= 0:
+            messages.error(request, "No hay stock disponible para este producto.")
+            return redirect('mercado')
         
         # Validar cantidad
         if cantidad < 1:
@@ -150,15 +160,23 @@ def realizar_pedido(request, producto_id):
         if cantidad > producto.cantidad_disponible:
             cantidad = producto.cantidad_disponible
 
+        notas_finales = f"Dirección de entrega: {direccion}"
+        if notas_adicionales:
+            notas_finales += f" | Notas: {notas_adicionales}"
+
         Pedido.objects.create(
             cliente=request.user,
             producto=producto,
-            cantidad=cantidad  
+            cantidad=cantidad,
+            notas=notas_finales
         )
+
+        producto.cantidad_disponible = max(producto.cantidad_disponible - cantidad, 0)
+        producto.save()
         
         messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad} tallo(s) de {producto.nombre_flor}.")
-        return redirect('mis_pedidos') 
-    
+        return redirect('mis_pedidos')
+
     return redirect('mercado')
 
 # 8. VISTA DE MIS PEDIDOS / PEDIDOS RECIBIDOS
@@ -172,7 +190,16 @@ def mis_pedidos_view(request):
     else:
         pedidos = Pedido.objects.filter(cliente=request.user).order_by('-fecha_pedido')
         titulo = "Mis Pedidos"
-    
+
+    for pedido in pedidos:
+        pedido.direccion_entrega = ''
+        pedido.notas_adicionales = ''
+        if pedido.notas:
+            partes = pedido.notas.split(' | Notas: ')
+            pedido.direccion_entrega = partes[0].replace('Dirección de entrega: ', '').strip()
+            if len(partes) > 1:
+                pedido.notas_adicionales = partes[1].strip()
+
     return render(request, 'mis_pedidos.html', {'pedidos': pedidos, 'titulo': titulo})
 
 # 9. VISTA DE LISTA DE CHATS
@@ -240,3 +267,114 @@ def chat_view(request, receptor_id):
     }
     
     return render(request, 'chat.html', contexto)
+
+# 11. VISTA PARA CANCELAR PEDIDO
+@login_required
+def cancelar_pedido(request, pedido_id):
+    """
+    Cancela un pedido si está en estado 'pendiente'.
+    Solo acepta POST por seguridad.
+    """
+    if request.method != 'POST':
+        messages.error(request, "Método no permitido.")
+        return redirect('mis_pedidos')
+    
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    
+    # Verificar que el usuario sea el cliente del pedido
+    if pedido.cliente != request.user:
+        messages.error(request, "No tienes permiso para cancelar este pedido.")
+        return redirect('mis_pedidos')
+    
+    # Solo permitir cancelación si está pendiente
+    if pedido.estado != 'pendiente':
+        messages.error(request, "Solo puedes cancelar pedidos en estado 'pendiente'.")
+        return redirect('mis_pedidos')
+    
+    # Cambiar estado a cancelado y devolver stock
+    pedido.estado = 'cancelado'
+    pedido.save()
+    
+    # Devolver la cantidad al stock del producto
+    pedido.producto.cantidad_disponible += pedido.cantidad
+    pedido.producto.save()
+    
+    messages.success(request, "Pedido cancelado exitosamente.")
+    return redirect('mis_pedidos')
+
+# 12. VISTA PARA EDITAR PEDIDO
+@login_required
+def editar_pedido(request, pedido_id):
+    """
+    Permite editar cantidad, dirección y notas de un pedido en estado 'pendiente'.
+    """
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    
+    # Verificar que el usuario sea el cliente del pedido
+    if pedido.cliente != request.user:
+        messages.error(request, "No tienes permiso para editar este pedido.")
+        return redirect('mis_pedidos')
+    
+    # Solo permitir edición si está pendiente
+    if pedido.estado != 'pendiente':
+        messages.error(request, "Solo puedes editar pedidos en estado 'pendiente'.")
+        return redirect('mis_pedidos')
+    
+    if request.method == 'POST':
+        try:
+            nueva_cantidad = int(request.POST.get('cantidad', pedido.cantidad))
+        except (ValueError, TypeError):
+            nueva_cantidad = pedido.cantidad
+            
+        direccion = request.POST.get('direccion_entrega', '').strip()
+        notas_adicionales = request.POST.get('notas_adicionales', '').strip()
+        
+        # Validar cantidad
+        if nueva_cantidad < 1:
+            messages.error(request, "La cantidad debe ser al menos 1.")
+            return redirect('editar_pedido', pedido_id=pedido_id)
+        
+        if not direccion:
+            messages.error(request, "Debes ingresar la dirección de entrega.")
+            return redirect('editar_pedido', pedido_id=pedido_id)
+        
+        # Calcular diferencia de cantidad para ajustar stock
+        diferencia = nueva_cantidad - pedido.cantidad
+        
+        # Validar que hay suficiente stock si la cantidad aumenta
+        if diferencia > 0 and pedido.producto.cantidad_disponible < diferencia:
+            messages.error(request, f"Solo hay {pedido.producto.cantidad_disponible} unidades disponibles.")
+            return redirect('editar_pedido', pedido_id=pedido_id)
+        
+        # Actualizar stock
+        pedido.producto.cantidad_disponible -= diferencia
+        pedido.producto.save()
+        
+        # Actualizar pedido
+        pedido.cantidad = nueva_cantidad
+        notas_finales = f"Dirección de entrega: {direccion}"
+        if notas_adicionales:
+            notas_finales += f" | Notas: {notas_adicionales}"
+        pedido.notas = notas_finales
+        pedido.save()
+        
+        messages.success(request, "Pedido actualizado exitosamente.")
+        return redirect('mis_pedidos')
+    
+    # Preparar datos para la plantilla (GET)
+    if pedido.notas:
+        partes = pedido.notas.split(' | Notas: ')
+        direccion_entrega = partes[0].replace('Dirección de entrega: ', '').strip()
+        notas_adicionales = partes[1].strip() if len(partes) > 1 else ''
+    else:
+        direccion_entrega = ''
+        notas_adicionales = ''
+    
+    contexto = {
+        'pedido': pedido,
+        'direccion_entrega': direccion_entrega,
+        'notas_adicionales': notas_adicionales,
+        'stock_disponible': pedido.producto.cantidad_disponible + pedido.cantidad
+    }
+    
+    return render(request, 'editar_pedido.html', contexto)

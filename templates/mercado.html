@@ -350,6 +350,23 @@
             background: #347a37;
         }
 
+        .btn-detalles.disabled,
+        .btn-detalles:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .stock-indicator {
+            font-size: 12px;
+            color: #334155;
+            margin-top: 8px;
+        }
+
+        .stock-indicator strong {
+            color: #0f766e;
+        }
+
         .sin-resultados {
             display: none;
             text-align: center;
@@ -409,8 +426,10 @@
 
         .modal-overlay.activo {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
+            padding: 40px 0 24px;
+            overflow-y: auto;
         }
 
         @keyframes fadeIn {
@@ -433,8 +452,10 @@
             background: white;
             border-radius: 28px;
             padding: 36px 32px;
-            max-width: 480px;
-            width: 90%;
+            max-width: 540px;
+            width: min(92%, 540px);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
             box-shadow: 0 32px 64px rgba(15, 23, 42, 0.18);
             animation: slideUp 0.35s ease;
             position: relative;
@@ -635,6 +656,47 @@
             color: #3f8f3f;
         }
 
+        .modal-form-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .field-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .field-group input,
+        .field-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .field-group input:focus,
+        .field-group textarea:focus {
+            border-color: #3f8f3f;
+            box-shadow: 0 0 0 4px rgba(56, 161, 105, 0.12);
+        }
+
+        .field-group textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
         .modal-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -692,6 +754,64 @@
             padding: 20px;
             color: #dc2626;
             font-weight: 600;
+        }
+
+        @media (max-width: 760px) {
+            .modal-content {
+                width: min(96%, 520px);
+                padding: 28px 22px;
+                border-radius: 22px;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+            }
+
+            .modal-precio {
+                font-size: 15px;
+            }
+
+            .modal-form-grid {
+                gap: 16px;
+            }
+
+            .cantidad-control {
+                flex-wrap: wrap;
+            }
+
+            .cantidad-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .cantidad-input {
+                min-width: 100px;
+            }
+
+            .modal-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .total-section {
+                padding: 18px;
+            }
+
+            .total-row,
+            .total-final {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .total-final {
+                padding-top: 16px;
+            }
         }
     </style>
 {% endblock %}
@@ -778,7 +898,16 @@
                         <h3 class="flor-nombre">{{ producto.nombre_flor }}{% if producto.variedad %} {{ producto.variedad }}{% endif %}</h3>
                         <p class="precio">Desde <span class="monto">${{ producto.precio_por_tallo }} COP</span></p>
                         <p class="ubicacion"><i class="fas fa-map-marker-alt"></i> {{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local' }}</p>
-                        <button type="button" class="btn-detalles" onclick="abrirModal({{ producto.id }}, '{{ producto.nombre_flor }}{% if producto.variedad %} {{ producto.variedad }}{% endif %}', {{ producto.precio_por_tallo }}, {{ producto.cantidad_disponible|default:'0' }})">agregar compra</button>
+                        <p class="stock-indicator">Stock disponible: <strong>{{ producto.cantidad_disponible }}</strong></p>
+                        <button type="button" class="btn-detalles{% if producto.cantidad_disponible == 0 %} disabled{% endif %}" 
+                            data-producto-id="{{ producto.id }}" 
+                            data-producto-nombre="{{ producto.nombre_flor|escape }}{% if producto.variedad %} {{ producto.variedad|escape }}{% endif %}" 
+                            data-producto-precio="{{ producto.precio_por_tallo }}" 
+                            data-producto-stock="{{ producto.cantidad_disponible|default:'0' }}" 
+                            data-producto-floricultor="{{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local'|escape }}" 
+                            onclick="abrirModal(this)"
+                            {% if producto.cantidad_disponible == 0 %}disabled{% endif %}
+                        >agregar compra</button>
                     </div>
                 </article>
                 {% endfor %}
@@ -961,6 +1090,17 @@
             </div>
         </div>
 
+        <div class="modal-form-grid">
+            <div class="field-group">
+                <label for="direccionEntrega">Dirección de entrega:</label>
+                <input type="text" id="direccionEntrega" name="direccion_entrega" placeholder="Ej: Calle 10 #4-20, Mosquera" autocomplete="street-address">
+            </div>
+            <div class="field-group">
+                <label for="notasAdicionales">Notas adicionales:</label>
+                <textarea id="notasAdicionales" name="notas_adicionales" placeholder="Ej: Dejar en portería, casa blanca"></textarea>
+            </div>
+        </div>
+
         <div class="cantidad-selector">
             <label class="cantidad-label">Cantidad (tallos):</label>
             <div class="cantidad-control">
@@ -996,6 +1136,13 @@
     </div>
 </div>
 
+<form id="pedidoForm" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="cantidad" id="pedidoCantidad" value="1">
+    <input type="hidden" name="direccion_entrega" id="pedidoDireccion" value="">
+    <input type="hidden" name="notas_adicionales" id="pedidoNotas" value="">
+</form>
+
 <script>
     let productoActual = {
         id: null,
@@ -1005,20 +1152,27 @@
         floricultor: ''
     };
 
-    function abrirModal(id, nombre, precio, stock) {
-        console.log('Abriendo modal:', {id, nombre, precio, stock});
+    function abrirModal(button) {
+        const id = button.dataset.productoId;
+        const nombre = button.dataset.productoNombre || '';
+        const precio = parseFloat(button.dataset.productoPrecio || 0);
+        const stock = parseInt(button.dataset.productoStock || 0, 10);
+        const floricultor = button.dataset.productoFloricultor || 'Cultivo Local';
+
+        console.log('Abriendo modal:', {id, nombre, precio, stock, floricultor});
         
         productoActual = {
             id: id,
             nombre: nombre,
-            precio: parseFloat(precio),
-            stock: parseInt(stock),
-            floricultor: 'Cultivo Local'
+            precio: precio,
+            stock: stock,
+            floricultor: floricultor
         };
 
         document.getElementById('modalNombre').textContent = nombre;
         document.getElementById('modalPrecio').textContent = `$${precio.toLocaleString('es-CO')} COP`;
         document.getElementById('modalStock').textContent = stock;
+        document.getElementById('modalFloricultor').textContent = floricultor;
         document.getElementById('precioUnitario').textContent = `$${precio.toLocaleString('es-CO')} COP`;
         document.getElementById('cantidadInput').value = 1;
         document.getElementById('cantidadInput').max = stock;
@@ -1061,6 +1215,21 @@
         }
     }
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function recalcularTotal() {
         const cantidad = parseInt(document.getElementById('cantidadInput').value) || 1;
         const total = productoActual.precio * cantidad;
@@ -1071,28 +1240,39 @@
 
     function confirmarCompra() {
         const cantidad = parseInt(document.getElementById('cantidadInput').value);
-        console.log('Confirmar compra - Producto ID:', productoActual.id, 'Cantidad:', cantidad);
-        
-        // Crear formulario oculto y enviar
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/usuarios/realizar_pedido/${productoActual.id}/`;
-        
-        // Buscar CSRF token
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfToken) {
-            form.appendChild(csrfToken.cloneNode(true));
-        } else {
-            console.warn('CSRF token no encontrado');
+        const direccion = document.getElementById('direccionEntrega').value.trim();
+        const notas = document.getElementById('notasAdicionales').value.trim();
+
+        if (!direccion) {
+            alert('Por favor ingresa la dirección de entrega.');
+            return;
         }
+
+        console.log('Confirmar compra - Producto ID:', productoActual.id, 'Cantidad:', cantidad, 'Dirección:', direccion, 'Notas:', notas);
         
-        const cantidadInput = document.createElement('input');
-        cantidadInput.type = 'hidden';
-        cantidadInput.name = 'cantidad';
-        cantidadInput.value = cantidad;
-        form.appendChild(cantidadInput);
-        
-        document.body.appendChild(form);
+        const form = document.getElementById('pedidoForm');
+        form.action = `/realizar-pedido/${productoActual.id}/`;
+
+        document.getElementById('pedidoCantidad').value = cantidad;
+        document.getElementById('pedidoDireccion').value = direccion;
+        document.getElementById('pedidoNotas').value = notas;
+
+        let csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfInput || !csrfInput.value.trim()) {
+            const token = getCookie('csrftoken');
+            if (token) {
+                if (!csrfInput) {
+                    csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    form.appendChild(csrfInput);
+                }
+                csrfInput.value = token;
+            } else {
+                console.error('No se encontró token CSRF en el formulario ni en cookies.');
+            }
+        }
+
         form.submit();
         
         cerrarModal();

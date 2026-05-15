@@ -22,6 +22,8 @@
                                 <th class="ps-4">Cliente</th>
                             {% endif %}
                             <th class="ps-4">Producto</th>
+                            <th>Dirección</th>
+                            <th>Notas</th>
                             <th>Cantidad</th>
                             <th>Fecha</th>
                             <th>Estado</th>
@@ -40,6 +42,12 @@
                             <td class="ps-4">
                                 <span class="nombre-producto">{{ pedido.producto.nombre_flor }}</span>
                             </td>
+                            <td class="text-truncate" style="max-width: 220px;">
+                                <small class="text-muted">{{ pedido.direccion_entrega|default:'-' }}</small>
+                            </td>
+                            <td class="text-truncate" style="max-width: 220px;">
+                                <small class="text-muted">{{ pedido.notas_adicionales|default:'-' }}</small>
+                            </td>
                             <td><span class="badge rounded-pill badge-cantidad">{{ pedido.cantidad }} u.</span></td>
                             <td>{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
                             <td><span class="badge bg-info">{{ pedido.get_estado_display }}</span></td>
@@ -52,14 +60,33 @@
                                         data-producto="{{ pedido.producto.nombre_flor }}"
                                         data-cantidad="{{ pedido.cantidad }}"
                                         data-fecha="{{ pedido.fecha_pedido|date:'d/m/Y H:i' }}"
-                                        data-estado="{{ pedido.get_estado_display }}">
+                                        data-estado="{{ pedido.get_estado_display }}"
+                                        data-direccion="{{ pedido.direccion_entrega|default:'-'|escapejs }}"
+                                        data-notas="{{ pedido.notas_adicionales|default:'-'|escapejs }}"
+                                        title="Ver detalles del pedido">
                                     Detalle
                                 </button>
+                                
+                                {% if request.user.rol != 'floricultor' and pedido.estado == 'pendiente' %}
+                                    <a href="{% url 'editar_pedido' pedido.id %}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       title="Editar pedido">
+                                        ✏️ Editar
+                                    </a>
+                                    <form method="POST" action="{% url 'cancelar_pedido' pedido.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                               onclick="return confirm('¿Estás seguro de que deseas cancelar este pedido?')"
+                                               title="Cancelar pedido">
+                                            ✗ Cancelar
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="{% if request.user.rol == 'floricultor' %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No hay pedidos registrados.</td>
+                            <td colspan="{% if request.user.rol == 'floricultor' %}8{% else %}7{% endif %}" class="text-center py-5 text-muted">No hay pedidos registrados.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -91,6 +118,12 @@
                     <strong>Estado:</strong> <span id="modal-estado"></span>
                 </div>
                 <div class="mb-3">
+                    <strong>Dirección de entrega:</strong> <span id="modal-direccion"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Notas adicionales:</strong> <span id="modal-notas"></span>
+                </div>
+                <div class="mb-3">
                     <strong>Nombre del Comprador:</strong> <span id="modal-nombre-comprador"></span>
                 </div>
                 <div class="mb-3">
@@ -115,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var cantidad = button.getAttribute('data-cantidad');
         var fecha = button.getAttribute('data-fecha');
         var estado = button.getAttribute('data-estado');
+        var direccion = button.getAttribute('data-direccion') || '-';
+        var notas = button.getAttribute('data-notas') || '-';
 
         document.getElementById('modal-nombre-comprador').textContent = nombreComprador;
         document.getElementById('modal-finca').textContent = finca;
@@ -122,6 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-cantidad').textContent = cantidad;
         document.getElementById('modal-fecha').textContent = fecha;
         document.getElementById('modal-estado').textContent = estado;
+        document.getElementById('modal-direccion').textContent = direccion;
+        document.getElementById('modal-notas').textContent = notas;
     });
 });
 </script>

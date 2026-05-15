@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .form-edit-pedido {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info-pedido {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .producto-info {
+            margin-bottom: 12px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary">← Volver a mis pedidos</a>
+    </div>
+
+    <div class="card shadow-sm form-edit-pedido">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">✏️ Editar Pedido #{{ pedido.id }}</h4>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Información del pedido -->
+            <div class="info-pedido">
+                <h5 class="mb-3">Información del Pedido</h5>
+                <div class="producto-info">
+                    <strong>Producto:</strong> {{ pedido.producto.nombre_flor }}
+                    {% if pedido.producto.variedad %}
+                        <br><small class="text-muted">Variedad: {{ pedido.producto.variedad }}</small>
+                    {% endif %}
+                </div>
+                <div class="producto-info">
+                    <strong>Precio por unidad:</strong> ${{ pedido.producto.precio_por_tallo }}
+                </div>
+                <div class="producto-info">
+                    <strong>Floricultор:</strong> {{ pedido.producto.floricultor.nombre_empresa_o_finca|default:pedido.producto.floricultor.username }}
+                </div>
+                <div class="producto-info">
+                    <strong>Fecha del pedido:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+
+            <!-- Formulario de edición -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="cantidad" class="form-label">
+                        <strong>Cantidad (tallos)</strong>
+                        <span class="text-muted"> - Stock disponible: {{ stock_disponible }}</span>
+                    </label>
+                    <input type="number" class="form-control" id="cantidad" name="cantidad" 
+                           value="{{ pedido.cantidad }}" min="1" required>
+                    <small class="text-muted d-block mt-2">Total a pagar: <strong id="total-pagar">${{ pedido.total_pagar }}</strong></small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="direccion_entrega" class="form-label"><strong>Dirección de Entrega</strong></label>
+                    <input type="text" class="form-control" id="direccion_entrega" name="direccion_entrega" 
+                           value="{{ direccion_entrega }}" placeholder="Ej: Calle Principal 123, Apto 4B" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notas_adicionales" class="form-label"><strong>Notas Adicionales (opcional)</strong></label>
+                    <textarea class="form-control" id="notas_adicionales" name="notas_adicionales" 
+                              rows="4" placeholder="Instrucciones especiales de entrega, horarios, etc.">{{ notas_adicionales }}</textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+                        ✓ Actualizar Pedido
+                    </button>
+                    <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cantidadInput = document.getElementById('cantidad');
+    const precioUnitario = {{ pedido.producto.precio_por_tallo }};
+    const totalPagarSpan = document.getElementById('total-pagar');
+
+    function actualizarTotal() {
+        const cantidad = parseInt(cantidadInput.value) || 1;
+        const total = cantidad * precioUnitario;
+        totalPagarSpan.textContent = '$' + total.toFixed(2);
+    }
+
+    cantidadInput.addEventListener('change', actualizarTotal);
+    cantidadInput.addEventListener('input', actualizarTotal);
+});
+</script>
+
+{% endblock %}
