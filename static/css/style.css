@@ -518,6 +518,74 @@ body, html {
     font-weight: bold;
 }
 
+/* Estilos para el home hero con Bootstrap */
+.home-hero {
+    background: linear-gradient(180deg, #f8fbf8 0%, #ffffff 100%);
+}
+.hero-badge {
+    letter-spacing: 0.4px;
+    font-size: 0.85rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 999px;
+}
+.feature-card {
+    background: #ffffff;
+    border: 1px solid #ecf2ee;
+    border-radius: 24px;
+    min-height: 170px;
+}
+.home-hero-image {
+    min-height: 520px;
+    overflow: hidden;
+    border-radius: 28px;
+}
+.home-hero-image img {
+    min-height: 520px;
+    object-fit: cover;
+    width: 100%;
+}
+.hero-overlay-card {
+    width: auto;
+    max-width: 320px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 24px;
+    border: 1px solid rgba(34, 34, 34, 0.06);
+}
+.hero-overlay-card .overlay-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.hero-benefits .feature-card {
+    border: 1px solid #ecf2ee;
+    background: #ffffff;
+    border-radius: 22px;
+    min-height: 120px;
+}
+.hero-benefits .feature-card h5 {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+.hero-benefits .feature-card p {
+    color: #67717a;
+}
+@media (max-width: 991.98px) {
+    .home-hero-image {
+        min-height: 320px;
+    }
+    .home-hero-image img {
+        min-height: 320px;
+    }
+    .hero-overlay-card {
+        position: static !important;
+        width: 100%;
+        max-width: none;
+        margin-top: 1rem;
+    }
+}
+
 .ubicacion {
     font-size: 0.8rem;
     color: #888;

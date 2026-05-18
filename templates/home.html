@@ -2,67 +2,181 @@
 {% load static %}
 
 {% block content %}
-<div class="home-market-wrapper"> <!-- Nueva clase escudo -->
+<section class="home-hero py-5">
     <div class="container">
-        <header class="home-header">
-            <h1>Bienvenido, {{ user.username }}</h1>
-            <p class="badge">{{ user.get_rol_display }}</p>
-        </header>
-
-        {% if user.rol == 'floricultor' %}
-            <section class="dashboard-section">
-                <div class="info-card">
-                    <h3>Finca/Empresa: {{ user.nombre_empresa_o_finca|default:"Nombre no registrado" }}</h3>
-                    <p>Gestiona tus cultivos y pedidos en tiempo real.</p>
-                </div>
-
-                <div class="action-grid">
-                    <div class="action-card">
-                        <i class="fas fa-plus-circle"></i>
-                        <h4>Publicar Flores</h4>
-                        <p>Sube nuevas variedades de tu inventario.</p>
-                        <a href="{% url 'agregar_producto' %}" class="btn-action">Agregar Producto</a>
-                    </div>
-                    <div class="action-card">
-                        <i class="fas fa-list-ul"></i>
-                        <h4>Mis Pedidos</h4>
-                        <p>Revisa las solicitudes de tus compradores.</p>
-                        <a href="#" class="btn-action">Ver Pedidos</a>
+        {% if user.rol != 'floricultor' %}
+            <div class="row gy-4">
+                <div class="col-lg-7">
+                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">Flores frescas, directas del productor a tu puerta</span>
+                    <h1 class="display-5 fw-bold">Las mejores flores, <span class="text-success">directo de quienes las cultivan</span></h1>
+                    <p class="text-secondary mt-3">Conectamos contigo los mejores floricultores para que recibas frescura, calidad y confianza.</p>
+                    <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+                        <a href="{% url 'mercado' %}" class="btn btn-success btn-lg">Explorar flores</a>
+                        <a href="#" class="btn btn-outline-secondary btn-lg">Conoce a nuestros floricultores</a>
                     </div>
                 </div>
-            </section>
 
-        {% else %}
-            <section class="marketplace-section">
-                <div class="search-bar">
-                    <input type="text" placeholder="Buscar rosas, claveles, astromelias...">
-                    <button class="btn-search">Buscar</button>
-                </div>
-
-                <h2>Flores frescas de nuestros productores</h2>
-                
-                <!-- Contenedor para las tarjetas de la imagen de referencia -->
-                <div class="product-gallery grid-referencia">
-                    {% if productos_mercado %}
-                        {% for producto in productos_mercado %}
-                        <div class="card-floral">
-                            {% if producto.imagen %}
-                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre_flor }}">
-                            {% endif %}
-                            <div class="card-floral-body">
-                                <h4>{{ producto.nombre_flor }}</h4>
-                                <p class="precio-ref">Desde ${{ producto.precio_por_tallo }} COP</p>
-                                <p class="ubicacion-ref">📍 {{ producto.floricultor.nombre_empresa_o_finca }}</p>
-                                <button class="btn-ver-detalles">Ver Detalles</button>
+                <div class="col-lg-5">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3">
+                        <div class="col">
+                            <div class="feature-card p-4 h-100">
+                                <i class="fas fa-seedling fa-lg text-success mb-3"></i>
+                                <h5>Variedad de flores</h5>
+                                <p class="mb-0 text-muted">Gran selección para cada ocasión.</p>
                             </div>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="empty-msg">Explora la red floricultora más grande de Colombia.</p>
-                    {% endif %}
+                        <div class="col">
+                            <div class="feature-card p-4 h-100">
+                                <i class="fas fa-heart fa-lg text-success mb-3"></i>
+                                <h5>Apoya a lo local</h5>
+                                <p class="mb-0 text-muted">Apoyas a floricultores de tu región.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="feature-card p-4 h-100">
+                                <i class="fas fa-shield-alt fa-lg text-success mb-3"></i>
+                                <h5>Calidad garantizada</h5>
+                                <p class="mb-0 text-muted">Flores frescas y de la mejor calidad.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="feature-card p-4 h-100">
+                                <i class="fas fa-headset fa-lg text-success mb-3"></i>
+                                <h5>Atención personalizada</h5>
+                                <p class="mb-0 text-muted">Estamos para ayudarte siempre.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </section>
+            </div>
+        {% else %}
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-6 order-lg-1">
+                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">La plataforma que impulsa tu negocio floral</span>
+                    <h1 class="display-5 fw-bold">Vende más flores, <span class="text-success">haz crecer tu negocio</span> con FloraSmart</h1>
+                    <p class="text-secondary mt-3">Sube tus flores, recibe pedidos y gestiona tu comercio floral en un solo lugar.</p>
+                    <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+                        <a href="{% url 'agregar_producto' %}" class="btn btn-success btn-lg">Subir Flores</a>
+                        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">Ver Pedidos</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 order-lg-2">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3">
+                        <div class="col">
+                            <div class="feature-card p-4 h-100 d-flex align-items-start gap-3">
+                                <span class="overlay-icon bg-success bg-opacity-10 text-success rounded-circle p-3"><i class="fas fa-chart-line"></i></span>
+                                <div>
+                                    <h5 class="mb-1">Más visibilidad</h5>
+                                    <p class="mb-0 text-muted">Llega a más clientes.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="feature-card p-4 h-100 d-flex align-items-start gap-3">
+                                <span class="overlay-icon bg-success bg-opacity-10 text-success rounded-circle p-3"><i class="fas fa-shopping-bag"></i></span>
+                                <div>
+                                    <h5 class="mb-1">Más ventas</h5>
+                                    <p class="mb-0 text-muted">Aumenta tus ingresos.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="feature-card p-4 h-100 d-flex align-items-start gap-3">
+                                <span class="overlay-icon bg-success bg-opacity-10 text-success rounded-circle p-3"><i class="fas fa-clock"></i></span>
+                                <div>
+                                    <h5 class="mb-1">Ahorra tiempo</h5>
+                                    <p class="mb-0 text-muted">Gestiona todo en un solo lugar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="feature-card p-4 h-100 d-flex align-items-start gap-3">
+                                <span class="overlay-icon bg-success bg-opacity-10 text-success rounded-circle p-3"><i class="fas fa-headset"></i></span>
+                                <div>
+                                    <h5 class="mb-1">Soporte dedicado</h5>
+                                    <p class="mb-0 text-muted">Te acompañamos en tu crecimiento.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
     </div>
-</div>
+</section>
+
+<section class="py-4 bg-white border-top">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-4 g-3">
+            <div class="col">
+                <div class="p-4 rounded-4 shadow-sm text-center h-100">
+                    <i class="fas fa-seedling fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Variedad de flores</h6>
+                    <p class="mb-0 text-muted">Gran selección para cada ocasión.</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="p-4 rounded-4 shadow-sm text-center h-100">
+                    <i class="fas fa-heart fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Apoya lo local</h6>
+                    <p class="mb-0 text-muted">Apoyas a floricultores de tu región.</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="p-4 rounded-4 shadow-sm text-center h-100">
+                    <i class="fas fa-shield-alt fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Calidad garantizada</h6>
+                    <p class="mb-0 text-muted">Flores frescas y de la mejor calidad.</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="p-4 rounded-4 shadow-sm text-center h-100">
+                    <i class="fas fa-headset fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Atención personalizada</h6>
+                    <p class="mb-0 text-muted">Estamos para ayudarte siempre.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if user.rol != 'floricultor' %}
+<section class="py-4">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4 gap-3">
+            <div>
+                <h2 class="h4 mb-1">Flores frescas de nuestros productores</h2>
+                <p class="text-muted mb-0">Explora la red floricultora más grande de Colombia.</p>
+            </div>
+            <a href="{% url 'mercado' %}" class="btn btn-outline-success">Ver todo el mercado</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+            {% if productos_mercado %}
+                {% for producto in productos_mercado %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                            {% if producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre_flor }}" style="height: 220px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ producto.nombre_flor }}</h5>
+                                <p class="text-success fw-bold mb-2">Desde ${{ producto.precio_por_tallo }} COP</p>
+                                <p class="text-muted small mb-3">📍 {{ producto.floricultor.nombre_empresa_o_finca }}</p>
+                                <a href="#" class="btn btn-sm btn-outline-success">Ver Detalles</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-secondary mb-0">No hay productos disponibles en este momento. Explora más tarde.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 {% endblock %}
