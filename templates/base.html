@@ -24,22 +24,22 @@
             </div>
 
             <nav class="nav-menu">
-                <a href="{% url 'home' %}" class="sidebar-link active">
+                <a href="{% url 'home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="fas fa-home"></i> 
-                    <span>Dashboard</span>
+                    <span>Home</span>
                 </a>
                 
-                <a href="{% url 'mercado' %}" class="sidebar-link">
+                <a href="{% url 'mercado' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mercado' %}active{% endif %}">
                     <i class="fas fa-store"></i> 
                     <span>Mercado</span>
                 </a>
                 <!-- CÓDIGO DE PEDIDOS -->
-                <a href="{% url 'mis_pedidos' %}" class="sidebar-link">
+                <a href="{% url 'mis_pedidos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mis_pedidos' %}active{% endif %}">
                     <i class="fas fa-shopping-basket"></i> 
                     <span>{% if user.rol == 'floricultor' %}Pedidos Recibidos{% else %}Mis Pedidos{% endif %}</span>
                 </a>
 
-                <a href="{% url 'lista_chats' %}" class="sidebar-link">
+                <a href="{% url 'lista_chats' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> 
                     <span>Chats</span>
                 </a>

@@ -302,6 +302,33 @@ def cancelar_pedido(request, pedido_id):
     messages.success(request, "Pedido cancelado exitosamente.")
     return redirect('mis_pedidos')
 
+# 11. VISTA PARA CAMBIAR ESTADO DEL PEDIDO
+@login_required
+def cambiar_estado_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, producto__floricultor=request.user)
+    if request.method != 'POST':
+        messages.error(request, "Método no permitido.")
+        return redirect('mis_pedidos')
+
+    nuevo_estado = request.POST.get('estado')
+    if nuevo_estado not in ['en_camino', 'entregado']:
+        messages.error(request, 'Estado no válido para actualizar el pedido.')
+        return redirect('mis_pedidos')
+
+    if nuevo_estado == 'en_camino' and pedido.estado != 'pendiente':
+        messages.error(request, 'Solo puedes marcar pedidos pendientes como "En Camino".')
+        return redirect('mis_pedidos')
+
+    if nuevo_estado == 'entregado' and pedido.estado != 'en_camino':
+        messages.error(request, 'Solo puedes marcar pedidos en camino como "Entregado".')
+        return redirect('mis_pedidos')
+
+    pedido.estado = nuevo_estado
+    pedido.save()
+
+    messages.success(request, f"Pedido #{pedido.id} actualizado a {pedido.get_estado_display()}.")
+    return redirect('mis_pedidos')
+
 # 12. VISTA PARA EDITAR PEDIDO
 @login_required
 def editar_pedido(request, pedido_id):
