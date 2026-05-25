@@ -31,6 +31,7 @@ urlpatterns = [
     # Rutas de la Aplicación (Dashboard)
     path('home/', views.home_view, name='home'),
     path('agregar-producto/', views.agregar_producto, name='agregar_producto'),
+    path('perfil/', views.perfil_view, name='perfil'),
     
     # Rutas del Mercado y Pedidos
     path('mercado/', views.mercado_view, name='mercado'),

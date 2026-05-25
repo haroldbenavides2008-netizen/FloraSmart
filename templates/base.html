@@ -51,7 +51,34 @@
                         <span>Agregar Producto</span>
                     </a>
                 {% endif %}
+
+                <a href="{% url 'perfil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                    <i class="fas fa-cog"></i> 
+                    <span>Configuración</span>
+                </a>
             </nav>
+
+            <!-- SECCIÓN DE PERFIL DEL USUARIO EN LA PARTE INFERIOR DEL SIDEBAR -->
+            <div class="sidebar-user-profile">
+                <a href="{% url 'perfil' %}" class="profile-link">
+                    <div class="profile-avatar">
+                        {% if user.foto_perfil %}
+                            <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="profile-image">
+                        {% else %}
+                            <div class="profile-image-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <p class="profile-name">{{ user.nombre_empresa_o_finca|default:user.username }}</p>
+                        <p class="profile-action"><i class="fas fa-edit"></i> Editar Perfil</p>
+                    </div>
+                </a>
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
         </aside>
 
         <!-- CONTENIDO PRINCIPAL -->

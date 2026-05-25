@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 # Importación de modelos y formularios
 from .models import Usuario, Producto, Pedido, MensajeChat
-from .forms import ProductoForm
+from .forms import ProductoForm, PerfilForm
 
 # 1. VISTA DE REGISTRO (SIN FIREBASE)
 def register_view(request):
@@ -405,3 +405,27 @@ def editar_pedido(request, pedido_id):
     }
     
     return render(request, 'editar_pedido.html', contexto)
+
+# 13. VISTA DE PERFIL DE USUARIO
+@login_required
+def perfil_view(request):
+    """
+    Vista para ver y editar el perfil del usuario.
+    """
+    usuario = request.user
+    
+    if request.method == 'POST':
+        form = PerfilForm(request.POST, request.FILES, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "¡Perfil actualizado exitosamente!")
+            return redirect('perfil')
+    else:
+        form = PerfilForm(instance=usuario)
+    
+    contexto = {
+        'form': form,
+        'usuario': usuario,
+    }
+    
+    return render(request, 'perfil.html', contexto)
