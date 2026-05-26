@@ -423,9 +423,11 @@ def perfil_view(request):
     else:
         form = PerfilForm(instance=usuario)
     
+    pedidos_recientes = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')[:3]
     contexto = {
         'form': form,
         'usuario': usuario,
+        'pedidos_recientes': pedidos_recientes,
     }
     
     return render(request, 'perfil.html', contexto)
