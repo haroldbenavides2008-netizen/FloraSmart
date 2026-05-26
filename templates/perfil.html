@@ -3,243 +3,383 @@
 
 {% block extra_css %}
 <style>
-    .profile-container {
-        max-width: 840px;
-        margin: 0 auto;
-        padding: 0 12px;
-    }
+.profile-page {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 18px;
+}
 
-    .profile-header {
-        background: linear-gradient(135deg, #2d5a27 0%, #4a8c42 100%);
-        color: white;
-        padding: 44px 24px;
-        border-radius: 20px;
+.profile-top-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+    background: linear-gradient(135deg, #2d5a27 0%, #4a8c42 100%);
+    color: #fff;
+    border-radius: 30px;
+    padding: 34px 36px;
+    box-shadow: 0 24px 48px rgba(45, 90, 39, 0.18);
+    margin-bottom: 28px;
+}
+
+.profile-avatar-large {
+    width: 144px;
+    height: 144px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.35);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-large i {
+    font-size: 52px;
+    color: #4a8c42;
+}
+
+.profile-top-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-top-info h1 {
+    margin: 0;
+    font-size: 2.4rem;
+    letter-spacing: -0.03em;
+}
+
+.profile-top-info .profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.95rem;
+}
+
+.profile-top-info .profile-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-top-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.profile-top-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.12);
+    transition: all 0.25s ease;
+}
+
+.profile-top-actions a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.profile-card,
+.orders-card {
+    background: #fff;
+    border-radius: 26px;
+    box-shadow: 0 20px 40px rgba(20, 40, 20, 0.08);
+    padding: 28px;
+}
+
+.profile-card h3,
+.orders-card h3 {
+    margin: 0 0 18px;
+    color: #21411b;
+    font-size: 1.3rem;
+}
+
+.profile-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.profile-row label {
+    color: #5b6f59;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.profile-row span {
+    color: #172712;
+    font-size: 0.96rem;
+    line-height: 1.6;
+}
+
+.profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    background: #eaf8ea;
+    color: #1f4d21;
+    border: 1px solid rgba(74, 157, 77, 0.18);
+}
+
+.order-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid #f0f3f0;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: #ecf7ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2d6b34;
+}
+
+.order-meta strong {
+    display: block;
+    color: #162f1d;
+    font-size: 0.98rem;
+    margin-bottom: 4px;
+}
+
+.order-meta small {
+    color: #6d7f6b;
+    font-size: 0.88rem;
+}
+
+.order-amount {
+    color: #1d4620;
+    font-weight: 700;
+    text-align: right;
+    font-size: 0.98rem;
+}
+
+.orders-footer {
+    margin-top: 22px;
+}
+
+.orders-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #2c5f29;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.orders-link:hover {
+    text-decoration: underline;
+}
+
+.form-section {
+    background: #fff;
+    border-radius: 26px;
+    padding: 32px;
+    box-shadow: 0 18px 36px rgba(20, 40, 20, 0.07);
+}
+
+.form-section h3 {
+    color: #21411b;
+    margin-bottom: 24px;
+    font-size: 1.3rem;
+    border-bottom: 1px solid #edf1ed;
+    padding-bottom: 14px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.form-row.full {
+    grid-template-columns: 1fr;
+}
+
+.form-group label {
+    font-size: 0.95rem;
+    color: #375b36;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    border: 1px solid #d9e3d9;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    background: #fbfdf9;
+    width: 100%;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2d5a27;
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.12);
+    background: #fff;
+}
+
+.image-preview {
+    width: 100%;
+    max-width: 240px;
+    height: 240px;
+    border-radius: 22px;
+    overflow: hidden;
+    margin: 12px 0;
+    border: 2px dashed #c9e2c6;
+    background: #f7faf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview i {
+    font-size: 42px;
+    color: #4a7d49;
+    opacity: 0.5;
+}
+
+.btn-primary-custom,
+.btn-secondary-custom {
+    border-radius: 14px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, #2d5a27 0%, #4a8c42 100%);
+    color: #fff;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(45, 90, 39, 0.24);
+}
+
+.btn-secondary-custom {
+    background: #f2f4f1;
+    color: #3f5240;
+    border: none;
+}
+
+.btn-secondary-custom:hover {
+    background: #dde3d7;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #eef2ec;
+}
+
+.info-box {
+    background: #f5faf4;
+    border-left: 4px solid #2c5a27;
+    padding: 18px 20px;
+    border-radius: 14px;
+    margin-bottom: 28px;
+    color: #27522b;
+    font-size: 0.94rem;
+}
+
+.info-box i {
+    margin-right: 10px;
+}
+
+@media (max-width: 1024px) {
+    .profile-top-card {
+        grid-template-columns: 1fr;
         text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 18px 40px rgba(45, 90, 39, 0.18);
     }
 
-    .profile-avatar-large {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        margin: 0 auto 22px;
-        border: 4px solid rgba(255, 255, 255, 0.85);
-        display: flex;
-        align-items: center;
+    .profile-top-actions {
         justify-content: center;
-        background: rgba(255, 255, 255, 0.15);
-        overflow: hidden;
-        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.12);
     }
 
-    .profile-avatar-large img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
+    .profile-grid {
+        grid-template-columns: 1fr;
     }
+}
 
-    .profile-avatar-large i {
-        font-size: 52px;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .profile-header h2 {
-        margin: 0 0 8px 0;
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-    }
-
-    .profile-header p {
-        margin: 0;
-        opacity: 0.92;
-        font-size: 15px;
-    }
-
-    .form-section {
-        background: white;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-
-    .form-section h3 {
-        color: #2d5a27;
-        margin-bottom: 20px;
-        font-size: 18px;
-        border-bottom: 2px solid #e9ecef;
-        padding-bottom: 10px;
+@media (max-width: 700px) {
+    .profile-page {
+        padding: 0 14px;
     }
 
     .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .form-row.full {
         grid-template-columns: 1fr;
     }
 
-    .form-group {
-        display: flex;
+    .button-group {
         flex-direction: column;
     }
-
-    .form-group label {
-        font-weight: 600;
-        color: #2d5a27;
-        margin-bottom: 8px;
-        font-size: 14px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px 12px;
-        font-size: 14px;
-        font-family: inherit;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #2d5a27;
-        box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
-    }
-
-    .form-group textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
-
-    .image-upload-wrapper {
-        position: relative;
-    }
-
-    .image-preview {
-        width: 100%;
-        max-width: 200px;
-        height: 200px;
-        border-radius: 8px;
-        overflow: hidden;
-        margin: 10px 0;
-        border: 2px dashed #2d5a27;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f8f9fa;
-    }
-
-    .image-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .image-preview i {
-        font-size: 40px;
-        color: #2d5a27;
-        opacity: 0.5;
-    }
-
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #2d5a27 0%, #4a8c42 100%);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin-right: 10px;
-    }
-
-    .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(45, 90, 39, 0.3);
-        color: white;
-        text-decoration: none;
-    }
-
-    .btn-secondary-custom {
-        background: #e9ecef;
-        color: #495057;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .btn-secondary-custom:hover {
-        background: #dee2e6;
-        color: #495057;
-        text-decoration: none;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 10px;
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #e9ecef;
-    }
-
-    .info-box {
-        background: #f0f7f4;
-        border-left: 4px solid #2d5a27;
-        padding: 15px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        color: #2d5a27;
-        font-size: 14px;
-    }
-
-    .info-box i {
-        margin-right: 10px;
-        font-weight: bold;
-    }
-
-    @media (max-width: 768px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-header {
-            padding: 30px 20px;
-        }
-
-        .form-section {
-            padding: 20px;
-        }
-
-        .button-group {
-            flex-direction: column;
-        }
-
-        .btn-primary-custom,
-        .btn-secondary-custom {
-            width: 100%;
-            margin-right: 0;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <!-- ENCABEZADO DEL PERFIL -->
-    <div class="profile-header">
+<div class="profile-page">
+
+    <div class="profile-top-card">
+
         <div class="profile-avatar-large">
             {% if usuario.foto_perfil %}
                 <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
@@ -247,152 +387,258 @@
                 <i class="fas fa-user"></i>
             {% endif %}
         </div>
-        <h2>{{ usuario.nombre_empresa_o_finca|default:usuario.username }}</h2>
-        <p><i class="fas fa-tag"></i> {{ usuario.get_rol_display }}</p>
-    </div>
 
-    <!-- INFORMACIÓN IMPORTANTE -->
-    <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <strong>Nota importante:</strong> Los cambios en tu perfil se guardarán inmediatamente después de hacer clic en "Guardar Cambios".
-    </div>
+        <div class="profile-top-info">
+            <h1>{{ usuario.nombre_empresa_o_finca|default:usuario.username }}</h1>
 
-    <!-- FORMULARIO DE EDICIÓN DE PERFIL -->
-    <form method="POST" enctype="multipart/form-data" class="form-section">
-        {% csrf_token %}
-        
-        <h3>Información Personal</h3>
-        
-        <!-- Foto de Perfil -->
-        <div class="form-row full">
-            <div class="form-group image-upload-wrapper">
-                <label for="id_foto_perfil">Foto de Perfil</label>
-                <div class="image-preview">
-                    {% if usuario.foto_perfil %}
-                        <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
-                    {% else %}
-                        <i class="fas fa-image"></i>
-                    {% endif %}
-                </div>
-                <input 
-                    type="file" 
-                    id="id_foto_perfil" 
-                    name="foto_perfil" 
-                    accept="image/*"
-                    class="form-control"
-                    onchange="previewImage(event)"
-                >
-                <small class="text-muted" style="margin-top: 8px;">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+            <div class="profile-meta">
+                <span>
+                    <i class="fas fa-tag"></i>
+                    {{ usuario.get_rol_display }}
+                </span>
+
+                <span>
+                    <i class="fas fa-calendar-alt"></i>
+                    Miembro desde {{ usuario.date_joined|date:"F Y" }}
+                </span>
             </div>
         </div>
 
-        <!-- Nombre y Apellido -->
-        <div class="form-row">
-            <div class="form-group">
-                <label for="id_first_name">Nombre</label>
-                {{ form.first_name }}
-            </div>
-            <div class="form-group">
-                <label for="id_last_name">Apellido</label>
-                {{ form.last_name }}
-            </div>
-        </div>
-
-        <!-- Email y Teléfono -->
-        <div class="form-row">
-            <div class="form-group">
-                <label for="id_email">Correo Electrónico</label>
-                {{ form.email }}
-            </div>
-            <div class="form-group">
-                <label for="id_telefono">Teléfono</label>
-                {{ form.telefono }}
-            </div>
-        </div>
-
-        <h3 style="margin-top: 30px;">Información de Negocio</h3>
-
-        <!-- Nombre de Empresa/Finca -->
-        <div class="form-row full">
-            <div class="form-group">
-                <label for="id_nombre_empresa_o_finca">
-                    Nombre de Empresa{% if usuario.rol == 'floricultor' %} / Finca{% endif %}
-                </label>
-                {{ form.nombre_empresa_o_finca }}
-                <small class="text-muted">
-                    {% if usuario.rol == 'floricultor' %}
-                        Nombre de tu finca o empresa productora de flores
-                    {% else %}
-                        Nombre de tu empresa o negocio
-                    {% endif %}
-                </small>
-            </div>
-        </div>
-
-        <!-- Ubicación -->
-        <div class="form-row full">
-            <div class="form-group">
-                <label for="id_ubicacion">Ubicación</label>
-                {{ form.ubicacion }}
-                <small class="text-muted">Ciudad, Departamento, País</small>
-            </div>
-        </div>
-
-        <!-- Bio/Descripción -->
-        <div class="form-row full">
-            <div class="form-group">
-                <label for="id_bio">Descripción / Bio</label>
-                {{ form.bio }}
-                <small class="text-muted">
-                    {% if usuario.rol == 'floricultor' %}
-                        Cuéntale a tus clientes sobre tu finca, tus flores especiales y tu experiencia
-                    {% else %}
-                        Cuéntales sobre tu negocio y qué tipos de flores buscas
-                    {% endif %}
-                </small>
-            </div>
-        </div>
-
-        <!-- Botones de acción -->
-        <div class="button-group">
-            <button type="submit" class="btn-primary-custom">
-                <i class="fas fa-save"></i> Guardar Cambios
-            </button>
-            <a href="{% url 'home' %}" class="btn-secondary-custom">
-                <i class="fas fa-arrow-left"></i> Volver
+        <div class="profile-top-actions">
+            <a href="#profile-form">
+                <i class="fas fa-edit"></i>
+                Editar Perfil
             </a>
         </div>
-    </form>
 
-    <!-- Mostrar errores del formulario si los hay -->
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
-            <strong>Error:</strong>
-            {% for error in form.non_field_errors %}
-                <div>{{ error }}</div>
-            {% endfor %}
+    </div>
+
+    <div class="profile-grid">
+
+        <div class="profile-card">
+
+            <h3>Información Personal</h3>
+
+            <div class="profile-row">
+                <label>Nombre</label>
+                <span>{{ usuario.get_full_name|default:usuario.username }}</span>
+            </div>
+
+            <div class="profile-row">
+                <label>Correo</label>
+                <span>{{ usuario.email }}</span>
+            </div>
+
+            <div class="profile-row">
+                <label>Teléfono</label>
+                <span>{{ usuario.telefono|default:"No registrado" }}</span>
+            </div>
+
+            <div class="profile-row">
+                <label>Ubicación</label>
+                <span>{{ usuario.ubicacion|default:"No especificada" }}</span>
+            </div>
+
+            <div class="profile-row">
+                <label>Tipo</label>
+                <span class="profile-badge">
+                    {{ usuario.get_rol_display }}
+                </span>
+            </div>
+
         </div>
-    {% endif %}
+
+        <div class="orders-card">
+
+            <h3>Historial de Pedidos</h3>
+
+            {% if pedidos_recientes %}
+
+                {% for pedido in pedidos_recientes %}
+
+                <div class="order-item">
+
+                    <div class="order-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+
+                    <div class="order-meta">
+                        <strong>Pedido #{{ pedido.id }}</strong>
+                        <small>{{ pedido.fecha_pedido|date:"j \\d\\e F, Y" }}</small>
+                    </div>
+
+                    <div class="order-amount">
+
+                        {% if pedido.estado == 'entregado' %}
+                            <span class="profile-badge">Entregado</span>
+
+                        {% elif pedido.estado == 'en_camino' %}
+                            <span class="profile-badge">En proceso</span>
+
+                        {% else %}
+                            <span class="profile-badge">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        {% endif %}
+
+                        <div style="margin-top:8px;">
+                            ${{ pedido.total_pagar|floatformat:2 }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>No tienes pedidos registrados.</p>
+
+            {% endif %}
+
+            <div class="orders-footer">
+                <a href="{% url 'mis_pedidos' %}" class="orders-link">
+                    Ver todos mis pedidos
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="form-section" id="profile-form">
+
+        <h3>Editar Perfil</h3>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            Los cambios se guardarán al presionar "Guardar cambios".
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-row full">
+
+                <div class="form-group">
+
+                    <label>Foto de Perfil</label>
+
+                    <div class="image-preview">
+
+                        {% if usuario.foto_perfil %}
+                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
+                        {% else %}
+                            <i class="fas fa-image"></i>
+                        {% endif %}
+
+                    </div>
+
+                    <input
+                        type="file"
+                        id="id_foto_perfil"
+                        name="foto_perfil"
+                        accept="image/*"
+                        onchange="previewImage(event)"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    {{ form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido</label>
+                    {{ form.last_name }}
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Correo</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+
+            </div>
+
+            <div class="form-row full">
+
+                <div class="form-group">
+                    <label>Empresa / Finca</label>
+                    {{ form.nombre_empresa_o_finca }}
+                </div>
+
+            </div>
+
+            <div class="form-row full">
+
+                <div class="form-group">
+                    <label>Ubicación</label>
+                    {{ form.ubicacion }}
+                </div>
+
+            </div>
+
+            <div class="form-row full">
+
+                <div class="form-group">
+                    <label>Bio</label>
+                    {{ form.bio }}
+                </div>
+
+            </div>
+
+            <div class="button-group">
+
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fas fa-save"></i>
+                    Guardar cambios
+                </button>
+
+                <a href="{% url 'home' %}" class="btn-secondary-custom">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
 
 <script>
-    function previewImage(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('preview-image');
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (preview) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                } else {
-                    const previewContainer = document.querySelector('.image-preview');
-                    previewContainer.innerHTML = '<img src="' + e.target.result + '" id="preview-image" alt="Vista previa">';
-                }
-            };
-            reader.readAsDataURL(file);
-        }
+function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('preview-image');
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            if (preview) {
+                preview.src = e.target.result;
+            }
+        };
+
+        reader.readAsDataURL(file);
     }
+}
 </script>
 {% endblock %}
