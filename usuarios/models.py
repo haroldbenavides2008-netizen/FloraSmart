@@ -11,6 +11,10 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     rol = models.CharField(max_length=20, choices=ROLES, default='comprador_b2c')
     nombre_empresa_o_finca = models.CharField(max_length=100, blank=True, null=True)
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, default='perfiles/default_profile.png')
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    ubicacion = models.CharField(max_length=200, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
 
     groups = models.ManyToManyField(
         Group,

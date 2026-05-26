@@ -24,22 +24,22 @@
             </div>
 
             <nav class="nav-menu">
-                <a href="{% url 'home' %}" class="sidebar-link active">
+                <a href="{% url 'home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="fas fa-home"></i> 
-                    <span>Dashboard</span>
+                    <span>Home</span>
                 </a>
                 
-                <a href="{% url 'mercado' %}" class="sidebar-link">
+                <a href="{% url 'mercado' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mercado' %}active{% endif %}">
                     <i class="fas fa-store"></i> 
                     <span>Mercado</span>
                 </a>
                 <!-- CÓDIGO DE PEDIDOS -->
-                <a href="{% url 'mis_pedidos' %}" class="sidebar-link">
+                <a href="{% url 'mis_pedidos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mis_pedidos' %}active{% endif %}">
                     <i class="fas fa-shopping-basket"></i> 
                     <span>{% if user.rol == 'floricultor' %}Pedidos Recibidos{% else %}Mis Pedidos{% endif %}</span>
                 </a>
 
-                <a href="{% url 'lista_chats' %}" class="sidebar-link">
+                <a href="{% url 'lista_chats' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> 
                     <span>Chats</span>
                 </a>
@@ -51,7 +51,34 @@
                         <span>Agregar Producto</span>
                     </a>
                 {% endif %}
+
+                <a href="{% url 'perfil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                    <i class="fas fa-cog"></i> 
+                    <span>Configuración</span>
+                </a>
             </nav>
+
+            <!-- SECCIÓN DE PERFIL DEL USUARIO EN LA PARTE INFERIOR DEL SIDEBAR -->
+            <div class="sidebar-user-profile">
+                <a href="{% url 'perfil' %}" class="profile-link">
+                    <div class="profile-avatar">
+                        {% if user.foto_perfil %}
+                            <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="profile-image">
+                        {% else %}
+                            <div class="profile-image-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <p class="profile-name">{{ user.nombre_empresa_o_finca|default:user.username }}</p>
+                        <p class="profile-action"><i class="fas fa-edit"></i> Editar Perfil</p>
+                    </div>
+                </a>
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
         </aside>
 
         <!-- CONTENIDO PRINCIPAL -->
@@ -80,7 +107,7 @@
             {% endif %}
 
             <!-- Sección donde se cargan las vistas -->
-            <section class="container-fluid">
+            <section class="container-fluid py-4">
                 {% block content %}
                 {% endblock %}
             </section>
