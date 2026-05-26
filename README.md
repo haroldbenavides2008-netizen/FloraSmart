@@ -1,72 +1,74 @@
 FloraSmart 🌸
 Gestión de inventario y comercio sostenible para la floricultura.
 
-- Descripción
-FloraSmart es una plataforma digital desarrollada para resolver el desperdicio en la industria floricultora. El proyecto se centra en la comercialización de flores de segunda mano: productos que, aunque no cumplen con los estrictos estándares de exportación, mantienen una calidad estética óptima para el mercado local.
 
-El sistema permite a los floricultores gestionar su inventario de excedentes y a los compradores acceder a productos de alta calidad a precios justos, fomentando la sostenibilidad y la economía circular.
+Es una plataforma web integral diseñada para optimizar la comercialización de flores, permitiendo a los floricultores gestionar sus cultivos y a los compradores adquirir productos frescos directamente, sin intermediarios.
 
-- Integrantes
-Maria Isabel Mosquera Reyes 
-Harold Benavides 
+Características Principales
+Mercado Digital: Catálogo de flores con filtros avanzados por nombre, categoría y colores.
 
-- Tecnologías utilizadas
-Lenguaje: Python 3.12+
+Gestión de Inventario: Panel exclusivo para floricultores donde pueden agregar, editar y eliminar sus productos.
 
-Framework: Django 5.0
+Sistema de Pedidos: Proceso de compra simplificado con historial de pedidos para clientes y productores.
 
-Base de datos: SQLite (Arquitectura local centralizada)
+Chat en Tiempo Real: Comunicación directa integrada con Firebase para negociaciones rápidas.
 
-Entorno: WSL 2 (Ubuntu) / Docker Desktop
+Autenticación Segura: Sistema de registro y login diferenciado por roles (Comprador/Floricultor).
 
-Estilos: CSS3 personalizado 
+Panel Administrativo: Control total de la base de datos mediante el administrador de Django.
 
-- Requisitos previos
-Para ejecutar este proyecto, asegúrate de tener instalado:
+Tecnologías Utilizadas
+Backend: Python 3.x & Django 5.x.
 
-Python 3.10 o superior.
+Base de Datos:  Firebase Realtime Database (Chat).
 
-Git.
+Frontend: HTML5, CSS3 (Flexbox/Grid) .
 
-WSL 2 configurado (si trabajas en Windows).
+Autenticación: Django Auth & Firebase Admin SDK.
 
-- Instalación y Configuración
-Sigue estos pasos para preparar tu entorno de desarrollo:
+Estilos: Diseño personalizado con enfoque en experiencia de usuario (UX).
 
--Clonar el repositorio:
+ Instalación y Configuración
+Sigue estos pasos para ejecutar el proyecto localmente:
+
+Clonar el repositorio:
+
 Bash
-git clone https://github.com/TuUsuario/FloraSmart.git
+git clone https://github.com/tu-usuario/FloraSmart.git
 cd FloraSmart
+Crear y activar el entorno virtual:
 
--Crear el entorno virtual:
 Bash
 python -m venv venv
-
--Activar el entorno virtual:
-En Windows: .\venv\Scripts\activate
-
+# En Windows:
+.\venv\Scripts\activate
 Instalar dependencias:
 
 Bash
-pip install -r requirements.txt
--Ejecución Local (Orden de Comandos)
-Para asegurar que la base de datos esté limpia y reconozca el nuevo sistema de usuarios (sin dependencias externas), ejecuta los comandos en este orden:
+pip install django firebase-admin
+Realizar migraciones:
 
--Preparar las migraciones del modelo de Usuario:
 Bash
-python manage.py makemigrations usuarios
-
--Aplicar las migraciones a la base de datos:
-Bash
+python manage.py makemigrations
 python manage.py migrate
+Crear un superusuario (Admin):
 
--Iniciar el servidor de desarrollo:
+Bash
+python manage.py createsuperuser
+Iniciar el servidor:
+
 Bash
 python manage.py runserver
-Accede al sistema en: http://127.0.0.1:8000/
+ Vista Previa del Proyecto
+(Aquí puedes añadir las rutas de las imágenes que me has mostrado)
 
-🗄️ Base de datos y Arquitectura
-El proyecto utiliza exclusivamente la base de datos interna de Django (SQLite). Se ha eliminado la integración con Firebase para centralizar la lógica de autenticación, roles (Floricultor/Cliente) y gestión de pedidos en un solo lugar, garantizando rapidez y estabilidad en el desarrollo local.
+Mercado de Flores: Interfaz limpia con tarjetas de productos y sistema de filtrado dinámico.
 
+Gestión de Pedidos: Tabla organizada con estados de pedido ("Solicitado", "Enviado", etc.).
 
-Roles: El sistema permite registrarse como Floricultor (para subir productos) o como Cliente (para realizar pedidos).
+Chat: Interfaz estilo mensajería moderna para soporte y ventas.
+
+Autores
+Desarrollado por: Harold Benavides y Maria Mosquera
+
+Programa: Análisis y Desarrollo de Software 
