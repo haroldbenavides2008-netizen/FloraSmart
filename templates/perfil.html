@@ -252,6 +252,7 @@
     font-size: 0.95rem;
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
     background: #fbfdf9;
+    width: 100%;
 }
 
 .form-group input:focus,
@@ -296,6 +297,7 @@
     font-size: 1rem;
     font-weight: 700;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .btn-primary-custom {
@@ -375,180 +377,266 @@
 
 {% block content %}
 <div class="profile-page">
+
     <div class="profile-top-card">
+
         <div class="profile-avatar-large">
             {% if usuario.foto_perfil %}
-                <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil de {{ usuario.username }}">
+                <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
             {% else %}
                 <i class="fas fa-user"></i>
             {% endif %}
         </div>
+
         <div class="profile-top-info">
             <h1>{{ usuario.nombre_empresa_o_finca|default:usuario.username }}</h1>
+
             <div class="profile-meta">
-                <span><i class="fas fa-tag"></i> {{ usuario.get_rol_display }}</span>
-                <span><i class="fas fa-calendar-alt"></i> Miembro desde {{ usuario.date_joined|date:"F Y" }}</span>
+                <span>
+                    <i class="fas fa-tag"></i>
+                    {{ usuario.get_rol_display }}
+                </span>
+
+                <span>
+                    <i class="fas fa-calendar-alt"></i>
+                    Miembro desde {{ usuario.date_joined|date:"F Y" }}
+                </span>
             </div>
         </div>
+
         <div class="profile-top-actions">
-            <a href="#profile-form"><i class="fas fa-edit"></i> Editar Perfil</a>
+            <a href="#profile-form">
+                <i class="fas fa-edit"></i>
+                Editar Perfil
+            </a>
         </div>
+
     </div>
 
     <div class="profile-grid">
+
         <div class="profile-card">
+
             <h3>Información Personal</h3>
+
             <div class="profile-row">
-                <label>Nombre completo</label>
+                <label>Nombre</label>
                 <span>{{ usuario.get_full_name|default:usuario.username }}</span>
             </div>
+
             <div class="profile-row">
-                <label>Correo Electrónico</label>
+                <label>Correo</label>
                 <span>{{ usuario.email }}</span>
             </div>
+
             <div class="profile-row">
                 <label>Teléfono</label>
                 <span>{{ usuario.telefono|default:"No registrado" }}</span>
             </div>
+
             <div class="profile-row">
-                <label>Dirección</label>
+                <label>Ubicación</label>
                 <span>{{ usuario.ubicacion|default:"No especificada" }}</span>
             </div>
+
             <div class="profile-row">
-                <label>Tipo de cliente</label>
-                <span class="profile-badge">{{ usuario.get_rol_display }}</span>
+                <label>Tipo</label>
+                <span class="profile-badge">
+                    {{ usuario.get_rol_display }}
+                </span>
             </div>
-            <div class="profile-row">
-                <label>Miembro desde</label>
-                <span>{{ usuario.date_joined|date:"F Y" }}</span>
-            </div>
+
         </div>
 
         <div class="orders-card">
+
             <h3>Historial de Pedidos</h3>
+
             {% if pedidos_recientes %}
+
                 {% for pedido in pedidos_recientes %}
-                    <div class="order-item">
-                        <div class="order-icon">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
-                        <div class="order-meta">
-                            <strong>Pedido #{{ pedido.id }}</strong>
-                            <small>{{ pedido.fecha_pedido|date:"j \d\e F, Y" }}</small>
-                        </div>
-                        <div class="order-amount">
-                            {% if pedido.estado == 'entregado' %}
-                                <span class="badge-status profile-badge">Entregado</span>
-                            {% elif pedido.estado == 'en_camino' %}
-                                <span class="badge-status profile-badge">En Proceso</span>
-                            {% else %}
-                                <span class="badge-status profile-badge">{{ pedido.get_estado_display }}</span>
-                            {% endif %}
-                            <div style="margin-top: 8px;">${{ pedido.total_pagar|floatformat:2 }}</div>
-                        </div>
+
+                <div class="order-item">
+
+                    <div class="order-icon">
+                        <i class="fas fa-shopping-bag"></i>
                     </div>
+
+                    <div class="order-meta">
+                        <strong>Pedido #{{ pedido.id }}</strong>
+                        <small>{{ pedido.fecha_pedido|date:"j \\d\\e F, Y" }}</small>
+                    </div>
+
+                    <div class="order-amount">
+
+                        {% if pedido.estado == 'entregado' %}
+                            <span class="profile-badge">Entregado</span>
+
+                        {% elif pedido.estado == 'en_camino' %}
+                            <span class="profile-badge">En proceso</span>
+
+                        {% else %}
+                            <span class="profile-badge">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        {% endif %}
+
+                        <div style="margin-top:8px;">
+                            ${{ pedido.total_pagar|floatformat:2 }}
+                        </div>
+
+                    </div>
+
+                </div>
+
                 {% endfor %}
+
             {% else %}
-                <p>Aún no tienes pedidos registrados.</p>
+
+                <p>No tienes pedidos registrados.</p>
+
             {% endif %}
+
             <div class="orders-footer">
-                <a class="orders-link" href="{% url 'mis_pedidos' %}">
-                    Ver todos mis pedidos <i class="fas fa-arrow-right"></i>
+                <a href="{% url 'mis_pedidos' %}" class="orders-link">
+                    Ver todos mis pedidos
+                    <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
+
         </div>
+
     </div>
 
     <div class="form-section" id="profile-form">
-        <h3>Editar perfil</h3>
+
+        <h3>Editar Perfil</h3>
+
         <div class="info-box">
             <i class="fas fa-info-circle"></i>
-            <strong>Nota importante:</strong> Los cambios en tu perfil se guardarán al hacer clic en "Guardar cambios".
+            Los cambios se guardarán al presionar "Guardar cambios".
         </div>
+
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+
             <div class="form-row full">
-                <div class="form-group image-upload-wrapper">
-                    <label for="id_foto_perfil">Foto de Perfil</label>
+
+                <div class="form-group">
+
+                    <label>Foto de Perfil</label>
+
                     <div class="image-preview">
+
                         {% if usuario.foto_perfil %}
-                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
+                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
                         {% else %}
                             <i class="fas fa-image"></i>
                         {% endif %}
+
                     </div>
-                    <input type="file" id="id_foto_perfil" name="foto_perfil" accept="image/*" class="form-control" onchange="previewImage(event)">
-                    <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+
+                    <input
+                        type="file"
+                        id="id_foto_perfil"
+                        name="foto_perfil"
+                        accept="image/*"
+                        onchange="previewImage(event)"
+                    >
+
                 </div>
+
             </div>
 
             <div class="form-row">
+
                 <div class="form-group">
-                    <label for="id_first_name">Nombre</label>
+                    <label>Nombre</label>
                     {{ form.first_name }}
                 </div>
+
                 <div class="form-group">
-                    <label for="id_last_name">Apellido</label>
+                    <label>Apellido</label>
                     {{ form.last_name }}
                 </div>
+
             </div>
 
             <div class="form-row">
+
                 <div class="form-group">
-                    <label for="id_email">Correo Electrónico</label>
+                    <label>Correo</label>
                     {{ form.email }}
                 </div>
+
                 <div class="form-group">
-                    <label for="id_telefono">Teléfono</label>
+                    <label>Teléfono</label>
                     {{ form.telefono }}
                 </div>
+
             </div>
 
             <div class="form-row full">
+
                 <div class="form-group">
-                    <label for="id_nombre_empresa_o_finca">Nombre de Empresa{% if usuario.rol == 'floricultor' %} / Finca{% endif %}</label>
+                    <label>Empresa / Finca</label>
                     {{ form.nombre_empresa_o_finca }}
                 </div>
+
             </div>
 
             <div class="form-row full">
+
                 <div class="form-group">
-                    <label for="id_ubicacion">Ubicación</label>
+                    <label>Ubicación</label>
                     {{ form.ubicacion }}
                 </div>
+
             </div>
 
             <div class="form-row full">
+
                 <div class="form-group">
-                    <label for="id_bio">Descripción / Bio</label>
+                    <label>Bio</label>
                     {{ form.bio }}
                 </div>
+
             </div>
 
             <div class="button-group">
+
                 <button type="submit" class="btn-primary-custom">
-                    <i class="fas fa-save"></i> Guardar cambios
+                    <i class="fas fa-save"></i>
+                    Guardar cambios
                 </button>
+
                 <a href="{% url 'home' %}" class="btn-secondary-custom">
-                    <i class="fas fa-arrow-left"></i> Volver
+                    <i class="fas fa-arrow-left"></i>
+                    Volver
                 </a>
+
             </div>
+
         </form>
+
     </div>
+
 </div>
 
 <script>
 function previewImage(event) {
     const file = event.target.files[0];
     const preview = document.getElementById('preview-image');
+
     if (file) {
         const reader = new FileReader();
+
         reader.onload = function(e) {
             if (preview) {
                 preview.src = e.target.result;
-                preview.style.display = 'block';
             }
         };
+
         reader.readAsDataURL(file);
     }
 }
