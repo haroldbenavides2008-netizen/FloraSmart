@@ -423,11 +423,14 @@ def perfil_view(request):
     else:
         form = PerfilForm(instance=usuario)
     
-    pedidos_recientes = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')[:3]
+    pedidos_todos = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')
+    pedidos_recientes = pedidos_todos[:3]
+    pedidos_restantes = pedidos_todos[3:]
     contexto = {
         'form': form,
         'usuario': usuario,
         'pedidos_recientes': pedidos_recientes,
+        'pedidos_restantes': pedidos_restantes,
     }
     
     return render(request, 'perfil.html', contexto)
