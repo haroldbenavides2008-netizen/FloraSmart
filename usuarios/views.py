@@ -423,7 +423,11 @@ def perfil_view(request):
     else:
         form = PerfilForm(instance=usuario)
     
-    pedidos_todos = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')
+    if usuario.rol == 'floricultor':
+        pedidos_todos = Pedido.objects.filter(producto__floricultor=usuario).order_by('-fecha_pedido')
+    else:
+        pedidos_todos = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')
+
     pedidos_recientes = pedidos_todos[:3]
     pedidos_restantes = pedidos_todos[3:]
     contexto = {
