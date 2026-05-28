@@ -463,7 +463,11 @@
 
         <div class="orders-card">
 
-            <h3>Historial de pedidos enviados</h3>
+            {% if usuario.rol == 'comprador_b2c' %}
+                <h3>Historial de pedidos</h3>
+            {% else %}
+                <h3>Historial de pedidos enviados</h3>
+            {% endif %}
 
             {% if pedidos_recientes %}
 
