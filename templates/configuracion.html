@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8">
+        <div class="card shadow-sm p-4">
+            <div class="card-body">
+                {% if language == 'en' %}
+                    <h2 class="mb-4">Settings</h2>
+                    <p>Choose your preferred theme and interface language.</p>
+                {% else %}
+                    <h2 class="mb-4">Configuración</h2>
+                    <p>Elige tu tema preferido y el idioma de la interfaz.</p>
+                {% endif %}
+
+                <form method="post" id="config-form">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label">{% if language == 'en' %}Theme{% else %}Tema{% endif %}</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" {% if theme == 'light' %}checked{% endif %}>
+                            <label class="form-check-label" for="themeLight">{% if language == 'en' %}Light{% else %}Claro{% endif %}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark" {% if theme == 'dark' %}checked{% endif %}>
+                            <label class="form-check-label" for="themeDark">{% if language == 'en' %}Dark{% else %}Oscuro{% endif %}</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">{% if language == 'en' %}Language{% else %}Idioma{% endif %}</label>
+                        <select class="form-select" name="language">
+                            <option value="es" {% if language == 'es' %}selected{% endif %}>{% if language == 'en' %}Spanish{% else %}Español{% endif %}</option>
+                            <option value="en" {% if language == 'en' %}selected{% endif %}>{% if language == 'en' %}English{% else %}Inglés{% endif %}</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">{% if language == 'en' %}Save changes{% else %}Guardar cambios{% endif %}</button>
+                    <button type="button" class="btn btn-secondary ms-2" id="preview-theme">{% if language == 'en' %}Preview{% else %}Vista previa{% endif %}</button>
+                </form>
+
+                <div class="mt-4">
+                    <p class="small text-muted">{% if language == 'en' %}Changes are saved in your session and will be reflected immediately on this page.{% else %}Los cambios se guardan en tu sesión y se mostrarán en esta página inmediatamente.{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const previewBtn = document.getElementById('preview-theme');
+    const lightRadio = document.getElementById('themeLight');
+    const darkRadio = document.getElementById('themeDark');
+
+    const applyTheme = () => {
+        if (darkRadio.checked) {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    };
+
+    previewBtn.addEventListener('click', applyTheme);
+    applyTheme();
+</script>
+{% endblock %}

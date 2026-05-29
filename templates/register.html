@@ -1,15 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ request.session.language|default:'es' }}">
 <head>
     <meta charset="UTF-8">
-    <title>FloraSmart - Registro</title>
+    <title>FloraSmart - {% if request.session.language == 'en' %}Register{% else %}Registro{% endif %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body class="login-page">
     <div class="login-card">
-        <h2 class="welcome-title">Crea tu cuenta</h2>
-        <p class="role-text">Únete a la red floricultora más grande de Colombia</p>
+        <h2 class="welcome-title">{% if request.session.language == 'en' %}Create your account{% else %}Crea tu cuenta{% endif %}</h2>
+        <p class="role-text">{% if request.session.language == 'en' %}Join the largest flower grower network in Colombia{% else %}Únete a la red floricultora más grande de Colombia{% endif %}</p>
 
      
 {% if error %}
@@ -23,33 +23,33 @@
             <!-- Selector de Rol:  -->
             <div class="input-field">
                 <select name="rol" required>
-                    <option value="" disabled selected>Selecciona tu perfil</option>
-                    <option value="floricultor">Soy Floricultor / Productor</option>
-                    <option value="comprador_b2c">Soy Comprador (Cliente Final)</option>
-                    <option value="comprador_b2b">Soy Comprador Mayorista (B2B)[cite: 1]</option>
+                    <option value="" disabled selected>{% if request.session.language == 'en' %}Select your profile{% else %}Selecciona tu perfil{% endif %}</option>
+                    <option value="floricultor">{% if request.session.language == 'en' %}I am a Grower / Producer{% else %}Soy Floricultor / Productor{% endif %}</option>
+                    <option value="comprador_b2c">{% if request.session.language == 'en' %}I am a Buyer (Final Customer){% else %}Soy Comprador (Cliente Final){% endif %}</option>
+                    <option value="comprador_b2b">{% if request.session.language == 'en' %}I am a Wholesale Buyer (B2B){% else %}Soy Comprador Mayorista (B2B){% endif %}</option>
                 </select>
             </div>
 
             <div class="input-field">
-                <input type="text" name="username" placeholder="Nombre de usuario" required>
+                <input type="text" name="username" placeholder="{% if request.session.language == 'en' %}Username{% else %}Nombre de usuario{% endif %}" required>
             </div>
 
             <div class="input-field">
-                <input type="email" name="email" placeholder="Correo Electrónico" required>
+                <input type="email" name="email" placeholder="{% if request.session.language == 'en' %}Email{% else %}Correo Electrónico{% endif %}" required>
             </div>
 
             <div class="input-field">
-                <input type="password" name="password" placeholder="Contraseña" required>
+                <input type="password" name="password" placeholder="{% if request.session.language == 'en' %}Password{% else %}Contraseña{% endif %}" required>
             </div>
 
             <!-- Campo para empresas o fincas -->
             <div class="input-field">
-                <input type="text" name="empresa" placeholder="Nombre de tu Finca o Empresa (Opcional)">
+                <input type="text" name="empresa" placeholder="{% if request.session.language == 'en' %}Name of your Farm or Company (Optional){% else %}Nombre de tu Finca o Empresa (Opcional){% endif %}">
             </div>
 
           
              <button type="submit" class="login-btn" id="btn-registro">
-                Registrarse ahora
+                {% if request.session.language == 'en' %}Register now{% else %}Registrarse ahora{% endif %}
             </button>
             <script>
             document.querySelector('form').onsubmit = function() {
@@ -57,7 +57,7 @@
                 };
                 </script>
         
-        <p class="signup-text">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+        <p class="signup-text">{% if request.session.language == 'en' %}Already have an account? <a href="{% url 'login' %}">Sign in</a>{% else %}¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>{% endif %}</p>
     </div>
 </body>
 </html>

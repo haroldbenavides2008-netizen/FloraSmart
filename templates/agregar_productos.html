@@ -12,8 +12,8 @@
 {% block content %}
 <div class="form-container">
     <div class="form-header">
-        <h2><i class="fas fa-plus-circle"></i> Nuevo Producto Floral</h2>
-        <p>Completa la información para registrar la flor en el sistema.</p>
+        <h2><i class="fas fa-plus-circle"></i> {% if request.session.language == 'en' %}New Flower Product{% else %}Nuevo Producto Floral{% endif %}</h2>
+        <p>{% if request.session.language == 'en' %}Complete the information to register the flower in the system.{% else %}Completa la información para registrar la flor en el sistema.{% endif %}</p>
     </div>
 
     <!--  para que la imagen se guarde en la carpeta media -->
@@ -21,48 +21,48 @@
         {% csrf_token %}
         
         <div class="form-section">
-            <label for="{{ form.nombre_flor.id_for_label }}">Nombre de la Flor</label>
+            <label for="{{ form.nombre_flor.id_for_label }}">{% if request.session.language == 'en' %}Flower Name{% else %}Nombre de la Flor{% endif %}</label>
             {{ form.nombre_flor }}
         </div>
 
         <div class="form-grid">
             <div class="form-section">
-                <label for="{{ form.variedad.id_for_label }}">Variedad</label>
+                <label for="{{ form.variedad.id_for_label }}">{% if request.session.language == 'en' %}Variety{% else %}Variedad{% endif %}</label>
                 {{ form.variedad }}
             </div>
             <div class="form-section">
-                <label for="{{ form.color.id_for_label }}">Color</label>
+                <label for="{{ form.color.id_for_label }}">{% if request.session.language == 'en' %}Color{% else %}Color{% endif %}</label>
                 {{ form.color }}
             </div>
         </div>
 
         <div class="form-grid">
             <div class="form-section">
-                <label for="{{ form.precio_por_tallo.id_for_label }}">Precio por Tallo</label>
+                <label for="{{ form.precio_por_tallo.id_for_label }}">{% if request.session.language == 'en' %}Price per Stem{% else %}Precio por Tallo{% endif %}</label>
                 {{ form.precio_por_tallo }}
             </div>
             <div class="form-section">
-                <label for="{{ form.cantidad_disponible.id_for_label }}">Cantidad Disponible</label>
+                <label for="{{ form.cantidad_disponible.id_for_label }}">{% if request.session.language == 'en' %}Available Quantity{% else %}Cantidad Disponible{% endif %}</label>
                 {{ form.cantidad_disponible }}
             </div>
         </div>
 
         <div class="form-section">
-            <label for="{{ form.descripcion.id_for_label }}">Descripción Detallada</label>
+            <label for="{{ form.descripcion.id_for_label }}">{% if request.session.language == 'en' %}Detailed Description{% else %}Descripción Detallada{% endif %}</label>
             {{ form.descripcion }}
         </div>
 
         <div class="form-section">
-            <label>Imagen del Producto</label>
+            <label>{% if request.session.language == 'en' %}Product Image{% else %}Imagen del Producto{% endif %}</label>
             <div class="image-upload-wrapper">
                 {{ form.imagen }}
-                <small>Formatos permitidos: JPG, PNG. Máximo 5MB.</small>
+                <small>{% if request.session.language == 'en' %}Allowed formats: JPG, PNG. Maximum 5MB.{% else %}Formatos permitidos: JPG, PNG. Máximo 5MB.{% endif %}</small>
             </div>
         </div>
 
         <div class="form-buttons">
-            <a href="{% url 'home' %}" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Guardar  el Producto</button>
+            <a href="{% url 'home' %}" class="btn-secondary">{% if request.session.language == 'en' %}Cancel{% else %}Cancelar{% endif %}</a>
+            <button type="submit" class="btn-primary">{% if request.session.language == 'en' %}Save Product{% else %}Guardar el Producto{% endif %}</button>
         </div>
     </form>
 </div>

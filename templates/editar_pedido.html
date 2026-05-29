@@ -23,7 +23,7 @@
 {% block content %}
 <div class="container mt-4">
     <div class="mb-4">
-        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary">← Volver a mis pedidos</a>
+        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary">← {% if request.session.language == 'en' %}Back to my orders{% else %}Volver a mis pedidos{% endif %}</a>
     </div>
 
     <div class="card shadow-sm form-edit-pedido">
@@ -42,7 +42,7 @@
 
             <!-- Información del pedido -->
             <div class="info-pedido">
-                <h5 class="mb-3">Información del Pedido</h5>
+                <h5 class="mb-3">{% if request.session.language == 'en' %}Order Information{% else %}Información del Pedido{% endif %}</h5>
                 <div class="producto-info">
                     <strong>Producto:</strong> {{ pedido.producto.nombre_flor }}
                     {% if pedido.producto.variedad %}
@@ -50,13 +50,13 @@
                     {% endif %}
                 </div>
                 <div class="producto-info">
-                    <strong>Precio por unidad:</strong> ${{ pedido.producto.precio_por_tallo }}
+                    <strong>{% if request.session.language == 'en' %}Price per unit:{% else %}Precio por unidad:{% endif %}</strong> ${{ pedido.producto.precio_por_tallo }}
                 </div>
                 <div class="producto-info">
                     <strong>Floricultор:</strong> {{ pedido.producto.floricultor.nombre_empresa_o_finca|default:pedido.producto.floricultor.username }}
                 </div>
                 <div class="producto-info">
-                    <strong>Fecha del pedido:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
+                    <strong>{% if request.session.language == 'en' %}Order date:{% else %}Fecha del pedido:{% endif %}</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
                 </div>
             </div>
 
@@ -66,32 +66,32 @@
                 
                 <div class="mb-3">
                     <label for="cantidad" class="form-label">
-                        <strong>Cantidad (tallos)</strong>
-                        <span class="text-muted"> - Stock disponible: {{ stock_disponible }}</span>
+                        <strong>{% if request.session.language == 'en' %}Quantity (stems){% else %}Cantidad (tallos){% endif %}</strong>
+                        <span class="text-muted"> - {% if request.session.language == 'en' %}Available stock:{% else %}Stock disponible:{% endif %} {{ stock_disponible }}</span>
                     </label>
                     <input type="number" class="form-control" id="cantidad" name="cantidad" 
                            value="{{ pedido.cantidad }}" min="1" required>
-                    <small class="text-muted d-block mt-2">Total a pagar: <strong id="total-pagar">${{ pedido.total_pagar }}</strong></small>
+                    <small class="text-muted d-block mt-2">{% if request.session.language == 'en' %}Total to pay:{% else %}Total a pagar:{% endif %} <strong id="total-pagar">${{ pedido.total_pagar }}</strong></small>
                 </div>
 
                 <div class="mb-3">
-                    <label for="direccion_entrega" class="form-label"><strong>Dirección de Entrega</strong></label>
+                    <label for="direccion_entrega" class="form-label"><strong>{% if request.session.language == 'en' %}Delivery Address{% else %}Dirección de Entrega{% endif %}</strong></label>
                     <input type="text" class="form-control" id="direccion_entrega" name="direccion_entrega" 
-                           value="{{ direccion_entrega }}" placeholder="Ej: Calle Principal 123, Apto 4B" required>
+                           value="{{ direccion_entrega }}" placeholder="{% if request.session.language == 'en' %}Eg: Main Street 123, Apt 4B{% else %}Ej: Calle Principal 123, Apto 4B{% endif %}" required>
                 </div>
 
                 <div class="mb-4">
-                    <label for="notas_adicionales" class="form-label"><strong>Notas Adicionales (opcional)</strong></label>
+                    <label for="notas_adicionales" class="form-label"><strong>{% if request.session.language == 'en' %}Additional Notes (optional){% else %}Notas Adicionales (opcional){% endif %}</strong></label>
                     <textarea class="form-control" id="notas_adicionales" name="notas_adicionales" 
-                              rows="4" placeholder="Instrucciones especiales de entrega, horarios, etc.">{{ notas_adicionales }}</textarea>
+                              rows="4" placeholder="{% if request.session.language == 'en' %}Special delivery instructions, schedules, etc.{% else %}Instrucciones especiales de entrega, horarios, etc.{% endif %}">{{ notas_adicionales }}</textarea>
                 </div>
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success btn-lg flex-grow-1">
-                        ✓ Actualizar Pedido
+                        ✓ {% if request.session.language == 'en' %}Update Order{% else %}Actualizar Pedido{% endif %}
                     </button>
                     <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">
-                        Cancelar
+                        {% if request.session.language == 'en' %}Cancel{% else %}Cancelar{% endif %}
                     </a>
                 </div>
             </form>

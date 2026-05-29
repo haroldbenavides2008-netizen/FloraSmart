@@ -1,10 +1,10 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ request.session.language|default:'es' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FloraSmart - Iniciar Sesión</title>
+    <title>FloraSmart - {% if request.session.language == 'en' %}Sign In{% else %}Iniciar Sesión{% endif %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -15,8 +15,8 @@
             <h1 class="brand-name">FloraSmart</h1>
         </div>
         
-        <h2 class="welcome-title">Bienvenido a FloraSmart</h2>
-        <p class="role-text">Plataforma  de Comercio de Flores</p>
+        <h2 class="welcome-title">{% if request.session.language == 'en' %}Welcome to FloraSmart{% else %}Bienvenido a FloraSmart{% endif %}</h2>
+        <p class="role-text">{% if request.session.language == 'en' %}Flower Commerce Platform{% else %}Plataforma de Comercio de Flores{% endif %}</p>
 
         
         <form method="POST" action="{% url 'login' %}">
@@ -26,21 +26,21 @@
             <div class="input-field">
                 <i class="fa-regular fa-user"></i>
              
-                <input type="email" name="email" placeholder="Correo Electrónico" required>
+                <input type="email" name="email" placeholder="{% if request.session.language == 'en' %}Email{% else %}Correo Electrónico{% endif %}" required>
             </div>
             <div class="input-field">
                 <i class="fa-solid fa-lock"></i>
             
-                <input type="password" name="password" placeholder="Contraseña" required>
+                <input type="password" name="password" placeholder="{% if request.session.language == 'en' %}Password{% else %}Contraseña{% endif %}" required>
                 <i class="fa-regular fa-eye-slash toggle-pass"></i>
             </div>
 
-            <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+            <a href="#" class="forgot-link">{% if request.session.language == 'en' %}Forgot your password?{% else %}¿Olvidaste tu contraseña?{% endif %}</a>
 
-            <button type="submit" class="login-btn">Iniciar Sesión</button>
+            <button type="submit" class="login-btn">{% if request.session.language == 'en' %}Sign In{% else %}Iniciar Sesión{% endif %}</button>
         </form>
 
-<p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+<p>{% if request.session.language == 'en' %}Don't have an account? <a href="{% url 'register' %}">Register here</a>{% else %}¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>{% endif %}</p>
     </div>
 </body>
 </html>
