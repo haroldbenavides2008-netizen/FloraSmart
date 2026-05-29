@@ -406,7 +406,30 @@ def editar_pedido(request, pedido_id):
     
     return render(request, 'editar_pedido.html', contexto)
 
-# 13. VISTA DE PERFIL DE USUARIO
+# 13. VISTA DE CONFIGURACIÓN
+@login_required
+def configuracion_view(request):
+    """
+    Vista para mostrar opciones de tema e idioma.
+    """
+    if request.method == 'POST':
+        theme = request.POST.get('theme', 'light')
+        language = request.POST.get('language', 'es')
+        request.session['theme'] = theme
+        request.session['language'] = language
+        messages.success(request, 'Preferencias de configuración guardadas.')
+        return redirect('configuracion')
+
+    theme = request.session.get('theme', 'light')
+    language = request.session.get('language', 'es')
+    contexto = {
+        'theme': theme,
+        'language': language,
+    }
+
+    return render(request, 'configuracion.html', contexto)
+
+# 14. VISTA DE PERFIL DE USUARIO
 @login_required
 def perfil_view(request):
     """

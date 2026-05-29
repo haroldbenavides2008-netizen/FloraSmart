@@ -412,7 +412,7 @@
 
                 <span>
                     <i class="fas fa-calendar-alt"></i>
-                    Miembro desde {{ usuario.date_joined|date:"F Y" }}
+                    {% if request.session.language == 'en' %}Member since{% else %}Miembro desde{% endif %} {{ usuario.date_joined|date:"F Y" }}
                 </span>
             </div>
         </div>
@@ -420,7 +420,7 @@
         <div class="profile-top-actions">
             <a href="#profile-form">
                 <i class="fas fa-edit"></i>
-                Editar Perfil
+                {% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}
             </a>
         </div>
 
@@ -430,26 +430,26 @@
 
         <div class="profile-card">
 
-            <h3>Información Personal</h3>
+            <h3>{% if request.session.language == 'en' %}Personal Information{% else %}Información Personal{% endif %}</h3>
 
             <div class="profile-row">
-                <label>Nombre</label>
+                <label>{% if request.session.language == 'en' %}Name{% else %}Nombre{% endif %}</label>
                 <span>{{ usuario.get_full_name|default:usuario.username }}</span>
             </div>
 
             <div class="profile-row">
-                <label>Correo</label>
+                <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
                 <span>{{ usuario.email }}</span>
             </div>
 
             <div class="profile-row">
-                <label>Teléfono</label>
-                <span>{{ usuario.telefono|default:"No registrado" }}</span>
+                <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
+                <span>{{ usuario.telefono|default:"{% if request.session.language == 'en' %}Not registered{% else %}No registrado{% endif %}" }}</span>
             </div>
 
             <div class="profile-row">
-                <label>Ubicación</label>
-                <span>{{ usuario.ubicacion|default:"No especificada" }}</span>
+                <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
+                <span>{{ usuario.ubicacion|default:"{% if request.session.language == 'en' %}Not specified{% else %}No especificada{% endif %}" }}</span>
             </div>
 
             <div class="profile-row">
@@ -463,7 +463,11 @@
 
         <div class="orders-card">
 
-            <h3>Historial de pedidos enviados</h3>
+            {% if usuario.rol == 'comprador_b2c' %}
+                <h3>{% if request.session.language == 'en' %}Order history{% else %}Historial de pedidos{% endif %}</h3>
+            {% else %}
+                <h3>{% if request.session.language == 'en' %}Sent order history{% else %}Historial de pedidos enviados{% endif %}</h3>
+            {% endif %}
 
             {% if pedidos_recientes %}
 
@@ -506,14 +510,14 @@
 
             {% else %}
 
-                <p>No tienes pedidos registrados.</p>
+                <p>{% if request.session.language == 'en' %}You have no orders registered.{% else %}No tienes pedidos registrados.{% endif %}</p>
 
             {% endif %}
 
             <div class="orders-footer">
                 {% if pedidos_restantes %}
                 <button type="button" id="toggle-orders-btn" class="orders-link toggle-more-orders">
-                    Ver todos mis pedidos
+                    {% if request.session.language == 'en' %}View all my orders{% else %}Ver todos mis pedidos{% endif %}
                     <i class="fas fa-arrow-down"></i>
                 </button>
                 {% endif %}
@@ -553,11 +557,11 @@
 
     <div class="form-section" id="profile-form">
 
-        <h3>Editar Perfil</h3>
+        <h3>{% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}</h3>
 
         <div class="info-box">
             <i class="fas fa-info-circle"></i>
-            Los cambios se guardarán al presionar "Guardar cambios".
+            {% if request.session.language == 'en' %}Changes will be saved when you click "Save changes".{% else %}Los cambios se guardarán al presionar "Guardar cambios".{% endif %}
         </div>
 
         <form method="POST" enctype="multipart/form-data">
@@ -567,7 +571,7 @@
 
                 <div class="form-group">
 
-                    <label>Foto de Perfil</label>
+                    <label>{% if request.session.language == 'en' %}Profile Photo{% else %}Foto de Perfil{% endif %}</label>
 
                     <div class="image-preview">
 
@@ -594,12 +598,12 @@
             <div class="form-row">
 
                 <div class="form-group">
-                    <label>Nombre</label>
+                    <label>{% if request.session.language == 'en' %}First Name{% else %}Nombre{% endif %}</label>
                     {{ form.first_name }}
                 </div>
 
                 <div class="form-group">
-                    <label>Apellido</label>
+                    <label>{% if request.session.language == 'en' %}Last Name{% else %}Apellido{% endif %}</label>
                     {{ form.last_name }}
                 </div>
 
@@ -608,12 +612,12 @@
             <div class="form-row">
 
                 <div class="form-group">
-                    <label>Correo</label>
+                    <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
                     {{ form.email }}
                 </div>
 
                 <div class="form-group">
-                    <label>Teléfono</label>
+                    <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
                     {{ form.telefono }}
                 </div>
 
@@ -622,7 +626,7 @@
             <div class="form-row full">
 
                 <div class="form-group">
-                    <label>Empresa / Finca</label>
+                    <label>{% if request.session.language == 'en' %}Company / Farm{% else %}Empresa / Finca{% endif %}</label>
                     {{ form.nombre_empresa_o_finca }}
                 </div>
 
@@ -631,7 +635,7 @@
             <div class="form-row full">
 
                 <div class="form-group">
-                    <label>Ubicación</label>
+                    <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
                     {{ form.ubicacion }}
                 </div>
 
@@ -640,7 +644,7 @@
             <div class="form-row full">
 
                 <div class="form-group">
-                    <label>Bio</label>
+                    <label>{% if request.session.language == 'en' %}Bio{% else %}Bio{% endif %}</label>
                     {{ form.bio }}
                 </div>
 
@@ -650,12 +654,12 @@
 
                 <button type="submit" class="btn-primary-custom">
                     <i class="fas fa-save"></i>
-                    Guardar cambios
+                    {% if request.session.language == 'en' %}Save changes{% else %}Guardar cambios{% endif %}
                 </button>
 
                 <a href="{% url 'home' %}" class="btn-secondary-custom">
                     <i class="fas fa-arrow-left"></i>
-                    Volver
+                    {% if request.session.language == 'en' %}Back{% else %}Volver{% endif %}
                 </a>
 
             </div>

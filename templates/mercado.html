@@ -820,20 +820,20 @@
 <div class="mercado-wrapper">
     <div class="mercado-header">
         <div class="texto-hero">
-            <h1>¡Bienvenido al Mercado de Flores!</h1>
-            <p>Encuentra y compara variedades de flores directamente de los cultivos.</p>
+            <h1>{% if request.session.language == 'en' %}Welcome to the Flower Market!{% else %}¡Bienvenido al Mercado de Flores!{% endif %}</h1>
+            <p>{% if request.session.language == 'en' %}Find and compare flower varieties directly from the farms.{% else %}Encuentra y compara variedades de flores directamente de los cultivos.{% endif %}</p>
         </div>
 
         <div class="mercado-actions">
             <div class="buscador">
-                <input type="text" id="searchInput" placeholder="Buscar flores...">
+                <input type="text" id="searchInput" placeholder="{% if request.session.language == 'en' %}Search flowers...{% else %}Buscar flores...{% endif %}">
                 <select id="categorySelect">
-                    <option value="">Todas las categorías</option>
+                    <option value="">{% if request.session.language == 'en' %}All categories{% else %}Todas las categorías{% endif %}</option>
                     {% for categoria in categorias %}
                     <option value="{{ categoria }}">{{ categoria }}</option>
                     {% endfor %}
                 </select>
-                <button type="button" onclick="aplicarFiltros()">Buscar</button>
+                <button type="button" onclick="aplicarFiltros()">{% if request.session.language == 'en' %}Search{% else %}Buscar{% endif %}</button>
             </div>
 
             <div class="ordenador">
@@ -875,8 +875,8 @@
             </div>
 
             <div class="filtros-footer">
-                <button type="button" class="btn-aplicar-filtros" onclick="aplicarFiltros()">Aplicar filtros</button>
-                <button type="button" class="btn-limpiar-filtros" onclick="limpiarFiltros()">Limpiar filtro</button>
+                <button type="button" class="btn-aplicar-filtros" onclick="aplicarFiltros()">{% if request.session.language == 'en' %}Apply filters{% else %}Aplicar filtros{% endif %}</button>
+                <button type="button" class="btn-limpiar-filtros" onclick="limpiarFiltros()">{% if request.session.language == 'en' %}Clear filter{% else %}Limpiar filtro{% endif %}</button>
             </div>
         </aside>
 
@@ -896,9 +896,9 @@
                     </div>
                     <div class="info-container">
                         <h3 class="flor-nombre">{{ producto.nombre_flor }}{% if producto.variedad %} {{ producto.variedad }}{% endif %}</h3>
-                        <p class="precio">Desde <span class="monto">${{ producto.precio_por_tallo }} COP</span></p>
+                        <p class="precio">{% if request.session.language == 'en' %}From{% else %}Desde{% endif %} <span class="monto">${{ producto.precio_por_tallo }} COP</span></p>
                         <p class="ubicacion"><i class="fas fa-map-marker-alt"></i> {{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local' }}</p>
-                        <p class="stock-indicator">Stock disponible: <strong>{{ producto.cantidad_disponible }}</strong></p>
+                        <p class="stock-indicator">{% if request.session.language == 'en' %}Available stock:{% else %}Stock disponible:{% endif %} <strong>{{ producto.cantidad_disponible }}</strong></p>
                         <button type="button" class="btn-detalles{% if producto.cantidad_disponible == 0 %} disabled{% endif %}" 
                             data-producto-id="{{ producto.id }}" 
                             data-producto-nombre="{{ producto.nombre_flor|escape }}{% if producto.variedad %} {{ producto.variedad|escape }}{% endif %}" 
@@ -907,13 +907,13 @@
                             data-producto-floricultor="{{ producto.floricultor.nombre_empresa_o_finca|default:'Cultivo Local'|escape }}" 
                             onclick="abrirModal(this)"
                             {% if producto.cantidad_disponible == 0 %}disabled{% endif %}
-                        >agregar compra</button>
+                        >{% if request.session.language == 'en' %}add purchase{% else %}agregar compra{% endif %}</button>
                     </div>
                 </article>
                 {% endfor %}
             </div>
             <div class="sin-resultados" id="sin-resultados">
-                <p>No se encontraron productos con los filtros seleccionados.</p>
+                <p>{% if request.session.language == 'en' %}No products found with the selected filters.{% else %}No se encontraron productos con los filtros seleccionados.{% endif %}</p>
             </div>
         </section>
     </div>
