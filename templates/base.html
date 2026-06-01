@@ -39,6 +39,13 @@
                     <span>{% if user.rol == 'floricultor' %}Pedidos Recibidos{% else %}Mis Pedidos{% endif %}</span>
                 </a>
 
+                {% if user.is_authenticated and user.rol != 'floricultor' %}
+                <a href="{% url 'notificaciones' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificaciones' %}active{% endif %}">
+                    <i class="fas fa-bell"></i>
+                    <span>Notificaciones</span>
+                </a>
+                {% endif %}
+
                 <a href="{% url 'lista_chats' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> 
                     <span>Chats</span>

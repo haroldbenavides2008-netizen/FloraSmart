@@ -251,14 +251,35 @@
         <p><i class="fas fa-tag"></i> {{ usuario.get_rol_display }}</p>
     </div>
 
-    <!-- INFORMACIÓN IMPORTANTE -->
-    <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <strong>Nota importante:</strong> Los cambios en tu perfil se guardarán inmediatamente después de hacer clic en "Guardar Cambios".
+    <div class="profile-top-actions">
+        <a href="#perfil" class="action-pill active">Perfil</a>
+        <a href="#seguridad" class="action-pill">Seguridad</a>
+        <a href="#preferencias" class="action-pill">Preferencias</a>
     </div>
 
-    <!-- FORMULARIO DE EDICIÓN DE PERFIL -->
-    <form method="POST" enctype="multipart/form-data" class="form-section">
+    <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <strong>Configuración rápida:</strong> Actualiza tu información de contacto, foto de perfil y datos de tu finca desde aquí.
+    </div>
+
+    <div class="config-grid">
+        <div class="config-card config-card-primary">
+            <div>
+                <h3>Tu cuenta</h3>
+                <p>Visualiza y actualiza tus datos de contacto, nombre y dirección.</p>
+            </div>
+            <div class="config-icon"><i class="fas fa-user-cog"></i></div>
+        </div>
+        <div class="config-card config-card-secondary">
+            <div>
+                <h3>Preferencias</h3>
+                <p>Personaliza tu experiencia y mantente al día con tus pedidos.</p>
+            </div>
+            <div class="config-icon"><i class="fas fa-sliders-h"></i></div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="form-section" id="perfil">
         {% csrf_token %}
         
         <h3>Información Personal</h3>

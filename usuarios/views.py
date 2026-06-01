@@ -202,7 +202,20 @@ def mis_pedidos_view(request):
 
     return render(request, 'mis_pedidos.html', {'pedidos': pedidos, 'titulo': titulo})
 
-# 9. VISTA DE LISTA DE CHATS
+# 9. VISTA DE NOTIFICACIONES
+@login_required
+def notificaciones_view(request):
+    """Vista dedicada para que el cliente vea el avance de su pedido."""
+    if request.user.rol != 'comprador_b2c':
+        return redirect('home')
+
+    ultimo_pedido = Pedido.objects.filter(cliente=request.user).order_by('-fecha_pedido').first()
+    contexto = {
+        'ultimo_pedido': ultimo_pedido,
+    }
+    return render(request, 'notificaciones.html', contexto)
+
+# 10. VISTA DE LISTA DE CHATS
 @login_required
 def lista_chats_view(request):
     """
