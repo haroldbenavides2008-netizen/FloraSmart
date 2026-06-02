@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ request.session.language|default:'es' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +12,19 @@
     <!-- para los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const serverTheme = body.getAttribute('data-theme') || 'light';
+            const storedTheme = localStorage.getItem('theme');
+            const theme = serverTheme || storedTheme || 'light';
+            body.classList.toggle('dark-theme', theme === 'dark');
+            body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        });
+    </script>
 </head>
-<body>
+<body{% if request.session.theme == 'dark' %} class="dark-theme"{% endif %} data-theme="{{ request.session.theme|default:'light' }}" data-language="{{ request.session.language|default:'es' }}">
 
     <div class="market-layout">
         <!-- SIDEBAR -->
@@ -26,12 +37,12 @@
             <nav class="nav-menu">
                 <a href="{% url 'home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="fas fa-home"></i> 
-                    <span>Home</span>
+                    <span>{% if request.session.language == 'en' %}Home{% else %}Home{% endif %}</span>
                 </a>
                 
                 <a href="{% url 'mercado' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mercado' %}active{% endif %}">
                     <i class="fas fa-store"></i> 
-                    <span>Mercado</span>
+                    <span>{% if request.session.language == 'en' %}Market{% else %}Mercado{% endif %}</span>
                 </a>
                 <!-- CÓDIGO DE PEDIDOS -->
                 <a href="{% url 'mis_pedidos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mis_pedidos' %}active{% endif %}">
@@ -48,20 +59,20 @@
 
                 <a href="{% url 'lista_chats' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> 
-                    <span>Chats</span>
+                    <span>{% if request.session.language == 'en' %}Chats{% else %}Chats{% endif %}</span>
                 </a>
 
                 {% if user.rol == 'floricultor' %}
-                    <div class="sidebar-section-title">Gestión</div>
+                    <div class="sidebar-section-title">{% if request.session.language == 'en' %}Management{% else %}Gestión{% endif %}</div>
                     <a href="{% url 'agregar_producto' %}" class="sidebar-link">
                         <i class="fas fa-plus-circle"></i> 
-                        <span>Agregar Producto</span>
+                        <span>{% if request.session.language == 'en' %}Add Product{% else %}Agregar Producto{% endif %}</span>
                     </a>
                 {% endif %}
 
-                <a href="{% url 'perfil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                <a href="{% url 'configuracion' %}" class="sidebar-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
                     <i class="fas fa-cog"></i> 
-                    <span>Configuración</span>
+                    <span>{% if request.session.language == 'en' %}Settings{% else %}Configuración{% endif %}</span>
                 </a>
             </nav>
 
@@ -79,11 +90,11 @@
                     </div>
                     <div class="profile-info">
                         <p class="profile-name">{{ user.nombre_empresa_o_finca|default:user.username }}</p>
-                        <p class="profile-action"><i class="fas fa-edit"></i> Editar Perfil</p>
+                        <p class="profile-action"><i class="fas fa-edit"></i> {% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}</p>
                     </div>
                 </a>
                 <a href="{% url 'logout' %}" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    <i class="fas fa-sign-out-alt"></i> {% if request.session.language == 'en' %}Logout{% else %}Cerrar Sesión{% endif %}
                 </a>
             </div>
         </aside>
@@ -94,9 +105,9 @@
                 <div class="user-info">
                     {% if user.is_authenticated %}
                         <!-- saludo -->
-                        <span>Bienvenida, <strong>{{ user.username }}</strong></span>
+                        <span>{% if request.session.language == 'en' %}Welcome{% else %}Bienvenida{% endif %}, <strong>{{ user.username }}</strong></span>
                         <a href="{% url 'logout' %}" class="logout-link">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            <i class="fas fa-sign-out-alt"></i> {% if request.session.language == 'en' %}Logout{% else %}Cerrar Sesión{% endif %}
                         </a>
                     {% endif %}
                 </div>

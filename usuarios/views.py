@@ -419,7 +419,30 @@ def editar_pedido(request, pedido_id):
     
     return render(request, 'editar_pedido.html', contexto)
 
-# 13. VISTA DE PERFIL DE USUARIO
+# 13. VISTA DE CONFIGURACIÓN
+@login_required
+def configuracion_view(request):
+    """
+    Vista para mostrar opciones de tema e idioma.
+    """
+    if request.method == 'POST':
+        theme = request.POST.get('theme', 'light')
+        language = request.POST.get('language', 'es')
+        request.session['theme'] = theme
+        request.session['language'] = language
+        messages.success(request, 'Preferencias de configuración guardadas.')
+        return redirect('configuracion')
+
+    theme = request.session.get('theme', 'light')
+    language = request.session.get('language', 'es')
+    contexto = {
+        'theme': theme,
+        'language': language,
+    }
+
+    return render(request, 'configuracion.html', contexto)
+
+# 14. VISTA DE PERFIL DE USUARIO
 @login_required
 def perfil_view(request):
     """
@@ -436,9 +459,18 @@ def perfil_view(request):
     else:
         form = PerfilForm(instance=usuario)
     
+    if usuario.rol == 'floricultor':
+        pedidos_todos = Pedido.objects.filter(producto__floricultor=usuario).order_by('-fecha_pedido')
+    else:
+        pedidos_todos = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')
+
+    pedidos_recientes = pedidos_todos[:3]
+    pedidos_restantes = pedidos_todos[3:]
     contexto = {
         'form': form,
         'usuario': usuario,
+        'pedidos_recientes': pedidos_recientes,
+        'pedidos_restantes': pedidos_restantes,
     }
     
     return render(request, 'perfil.html', contexto)

@@ -3,7 +3,7 @@ _pycache_/
 *.py[cod]
 
 # Base de datos
-db.sqlite3
+*.sqlite3
 
 # Entorno virtual
 venv/
@@ -13,3 +13,6 @@ venv/
 
 # Archivos temporales
 *.log
+
+__pycache__/
+*.pyc

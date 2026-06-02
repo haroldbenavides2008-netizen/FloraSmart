@@ -7,12 +7,12 @@
         {% if user.rol != 'floricultor' %}
             <div class="row gy-4">
                 <div class="col-lg-7">
-                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">Flores frescas, directas del productor a tu puerta</span>
-                    <h1 class="display-5 fw-bold">Las mejores flores, <span class="text-success">directo de quienes las cultivan</span></h1>
-                    <p class="text-secondary mt-3">Conectamos contigo los mejores floricultores para que recibas frescura, calidad y confianza.</p>
+                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">{% if request.session.language == 'en' %}Fresh flowers, direct from growers to your door{% else %}Flores frescas, directas del productor a tu puerta{% endif %}</span>
+                    <h1 class="display-5 fw-bold">{% if request.session.language == 'en' %}The best flowers, <span class="text-success">straight from the growers</span>{% else %}Las mejores flores, <span class="text-success">directo de quienes las cultivan</span>{% endif %}</h1>
+                    <p class="text-secondary mt-3">{% if request.session.language == 'en' %}We connect you with the best flower growers so you receive freshness, quality, and trust.{% else %}Conectamos contigo los mejores floricultores para que recibas frescura, calidad y confianza.{% endif %}</p>
                     <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
-                        <a href="{% url 'mercado' %}" class="btn btn-success btn-lg">Explorar flores</a>
-                        <a href="#" class="btn btn-outline-secondary btn-lg">Conoce a nuestros floricultores</a>
+                        <a href="{% url 'mercado' %}" class="btn btn-success btn-lg">{% if request.session.language == 'en' %}Explore flowers{% else %}Explorar flores{% endif %}</a>
+                        <a href="#" class="btn btn-outline-secondary btn-lg">{% if request.session.language == 'en' %}Meet our growers{% else %}Conoce a nuestros floricultores{% endif %}</a>
                     </div>
                 </div>
 
@@ -21,29 +21,29 @@
                         <div class="col">
                             <div class="feature-card p-4 h-100">
                                 <i class="fas fa-seedling fa-lg text-success mb-3"></i>
-                                <h5>Variedad de flores</h5>
-                                <p class="mb-0 text-muted">Gran selección para cada ocasión.</p>
+                                <h5>{% if request.session.language == 'en' %}Flower variety{% else %}Variedad de flores{% endif %}</h5>
+                                <p class="mb-0 text-muted">{% if request.session.language == 'en' %}A wide selection for every occasion.{% else %}Gran selección para cada ocasión.{% endif %}</p>
                             </div>
                         </div>
                         <div class="col">
                             <div class="feature-card p-4 h-100">
                                 <i class="fas fa-heart fa-lg text-success mb-3"></i>
-                                <h5>Apoya a lo local</h5>
-                                <p class="mb-0 text-muted">Apoyas a floricultores de tu región.</p>
+                                <h5>{% if request.session.language == 'en' %}Support local{% else %}Apoya a lo local{% endif %}</h5>
+                                <p class="mb-0 text-muted">{% if request.session.language == 'en' %}Support growers from your region.{% else %}Apoyas a floricultores de tu región.{% endif %}</p>
                             </div>
                         </div>
                         <div class="col">
                             <div class="feature-card p-4 h-100">
                                 <i class="fas fa-shield-alt fa-lg text-success mb-3"></i>
-                                <h5>Calidad garantizada</h5>
-                                <p class="mb-0 text-muted">Flores frescas y de la mejor calidad.</p>
+                                <h5>{% if request.session.language == 'en' %}Quality guaranteed{% else %}Calidad garantizada{% endif %}</h5>
+                                <p class="mb-0 text-muted">{% if request.session.language == 'en' %}Fresh flowers with the best quality.{% else %}Flores frescas y de la mejor calidad.{% endif %}</p>
                             </div>
                         </div>
                         <div class="col">
                             <div class="feature-card p-4 h-100">
                                 <i class="fas fa-headset fa-lg text-success mb-3"></i>
-                                <h5>Atención personalizada</h5>
-                                <p class="mb-0 text-muted">Estamos para ayudarte siempre.</p>
+                                <h5>{% if request.session.language == 'en' %}Personal support{% else %}Atención personalizada{% endif %}</h5>
+                                <p class="mb-0 text-muted">{% if request.session.language == 'en' %}We are here to help you always.{% else %}Estamos para ayudarte siempre.{% endif %}</p>
                             </div>
                         </div>
                     </div>
@@ -52,12 +52,12 @@
         {% else %}
             <div class="row align-items-center gy-4">
                 <div class="col-lg-6 order-lg-1">
-                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">La plataforma que impulsa tu negocio floral</span>
-                    <h1 class="display-5 fw-bold">Vende más flores, <span class="text-success">haz crecer tu negocio</span> con FloraSmart</h1>
-                    <p class="text-secondary mt-3">Sube tus flores, recibe pedidos y gestiona tu comercio floral en un solo lugar.</p>
+                    <span class="badge bg-success bg-opacity-10 text-success mb-3 hero-badge">{% if request.session.language == 'en' %}The platform that grows your flower business{% else %}La plataforma que impulsa tu negocio floral{% endif %}</span>
+                    <h1 class="display-5 fw-bold">{% if request.session.language == 'en' %}Sell more flowers, <span class="text-success">grow your business</span> with FloraSmart{% else %}Vende más flores, <span class="text-success">haz crecer tu negocio</span> con FloraSmart{% endif %}</h1>
+                    <p class="text-secondary mt-3">{% if request.session.language == 'en' %}Upload your flowers, receive orders and manage your floral business in one place.{% else %}Sube tus flores, recibe pedidos y gestiona tu comercio floral en un solo lugar.{% endif %}</p>
                     <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
-                        <a href="{% url 'agregar_producto' %}" class="btn btn-success btn-lg">Subir Flores</a>
-                        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">Ver Pedidos</a>
+                        <a href="{% url 'agregar_producto' %}" class="btn btn-success btn-lg">{% if request.session.language == 'en' %}Upload Flowers{% else %}Subir Flores{% endif %}</a>
+                        <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">{% if request.session.language == 'en' %}View Orders{% else %}Ver Pedidos{% endif %}</a>
                     </div>
                 </div>
 

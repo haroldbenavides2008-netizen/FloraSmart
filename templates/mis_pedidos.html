@@ -9,7 +9,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-success">📦 {{ titulo }}</h2>
-        <span class="badge bg-primary">{{ pedidos.count }} registros</span>
+        <span class="badge bg-primary">{{ pedidos.count }} {% if request.session.language == 'en' %}records{% else %}registros{% endif %}</span>
     </div>
 
     <div class="card card-pedidos shadow-sm">
@@ -19,15 +19,15 @@
                     <thead>
                         <tr>
                             {% if request.user.rol == 'floricultor' %}
-                                <th class="ps-4">Cliente</th>
+                                <th class="ps-4">{% if request.session.language == 'en' %}Customer{% else %}Cliente{% endif %}</th>
                             {% endif %}
-                            <th class="ps-4">Producto</th>
-                            <th>Dirección</th>
-                            <th>Notas</th>
-                            <th>Cantidad</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
+                            <th class="ps-4">{% if request.session.language == 'en' %}Product{% else %}Producto{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Address{% else %}Dirección{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Notes{% else %}Notas{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Quantity{% else %}Cantidad{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Date{% else %}Fecha{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Status{% else %}Estado{% endif %}</th>
+                            <th class="text-center">{% if request.session.language == 'en' %}Actions{% else %}Acciones{% endif %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,7 +36,7 @@
                             {% if request.user.rol == 'floricultor' %}
                                 <td class="ps-4">
                                     <span class="nombre-producto">{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}</span>
-                                    <br><small class="text-muted">{{ pedido.cliente.nombre_empresa_o_finca|default:'Sin finca' }}</small>
+                                    <br><small class="text-muted">{% if request.session.language == 'en' %}{{ pedido.cliente.nombre_empresa_o_finca|default:'No farm specified' }}{% else %}{{ pedido.cliente.nombre_empresa_o_finca|default:'Sin finca' }}{% endif %}</small>
                                 </td>
                             {% endif %}
                             <td class="ps-4">
@@ -63,8 +63,8 @@
                                         data-estado="{{ pedido.get_estado_display }}"
                                         data-direccion="{{ pedido.direccion_entrega|default:'-'|escapejs }}"
                                         data-notas="{{ pedido.notas_adicionales|default:'-'|escapejs }}"
-                                        title="Ver detalles del pedido">
-                                    Detalle
+                                        title="{% if request.session.language == 'en' %}View order details{% else %}Ver detalles del pedido{% endif %}">
+                                    {% if request.session.language == 'en' %}Detail{% else %}Detalle{% endif %}
                                 </button>
 
                                 {% if request.user.rol == 'floricultor' %}
@@ -96,9 +96,9 @@
                                     <form method="POST" action="{% url 'cancelar_pedido' pedido.id %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                               onclick="return confirm('¿Estás seguro de que deseas cancelar este pedido?')"
-                                               title="Cancelar pedido">
-                                            ✗ Cancelar
+                                               onclick="return confirm('{% if request.session.language == 'en' %}Are you sure you want to cancel this order?{% else %}¿Estás seguro de que deseas cancelar este pedido?{% endif %}')"
+                                               title="{% if request.session.language == 'en' %}Cancel order{% else %}Cancelar pedido{% endif %}">
+                                            ✗ {% if request.session.language == 'en' %}Cancel{% else %}Cancelar{% endif %}
                                         </button>
                                     </form>
                                 {% endif %}
@@ -106,7 +106,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="{% if request.user.rol == 'floricultor' %}8{% else %}7{% endif %}" class="text-center py-5 text-muted">No hay pedidos registrados.</td>
+                            <td colspan="{% if request.user.rol == 'floricultor' %}8{% else %}7{% endif %}" class="text-center py-5 text-muted">{% if request.session.language == 'en' %}No orders registered yet.{% else %}No hay pedidos registrados.{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -121,7 +121,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalleModalLabel">Detalle del Pedido</h5>
+                <h5 class="modal-title" id="detalleModalLabel">{% if request.session.language == 'en' %}Order Details{% else %}Detalle del Pedido{% endif %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -151,7 +151,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% if request.session.language == 'en' %}Close{% else %}Cerrar{% endif %}</button>
             </div>
         </div>
     </div>
