@@ -837,15 +837,21 @@
             </div>
 
             <div class="ordenador">
-        
                 <select id="sortSelect" onchange="ordenarProductos()">
                     <option value="reciente">Más recientes</option>
                     <option value="precio-asc">Precio: menor a mayor</option>
                     <option value="precio-desc">Precio: mayor a menor</option>
-                  
                 </select>
             </div>
         </div>
+    </div>
+
+    <!-- Cart Widget - Fuera del grid -->
+    <div style="margin-bottom: 20px;">
+        <button type="button" class="btn btn-success" onclick="abrirCarrito()" style="padding: 10px 20px; font-weight: bold;">
+            🛒 {% if request.session.language == 'en' %}Cart{% else %}Carrito{% endif %} (<span id="cartCount">0</span>)
+        </button>
+        <span id="cartTotalText" class="text-muted" style="margin-left: 15px; font-size: 14px;">{% if request.session.language == 'en' %}Total{% else %}Total{% endif %}: $0 COP</span>
     </div>
 
     <div class="mercado-container">
@@ -918,6 +924,7 @@
         </section>
     </div>
 </div>
+
 
 <script>
     // Mapeo de flores a colores desde Django
@@ -1127,7 +1134,7 @@
 
         <div class="modal-actions">
             <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-            <button type="button" class="btn-confirmar" id="btnConfirmar" onclick="confirmarCompra()">Confirmar</button>
+            <button type="button" class="btn-confirmar" id="btnConfirmar" onclick="confirmarCompra()">{% if request.session.language == 'en' %}Add to cart{% else %}Agregar al carrito{% endif %}</button>
         </div>
         
         <div class="stock-agotado" id="stockAgotado" style="display: none;">
@@ -1136,12 +1143,45 @@
     </div>
 </div>
 
-<form id="pedidoForm" method="POST" style="display:none;">
+<form id="carritoForm" method="POST" action="{% url 'realizar_pedido_carrito' %}" style="display:none;">
     {% csrf_token %}
-    <input type="hidden" name="cantidad" id="pedidoCantidad" value="1">
-    <input type="hidden" name="direccion_entrega" id="pedidoDireccion" value="">
-    <input type="hidden" name="notas_adicionales" id="pedidoNotas" value="">
+    <input type="hidden" name="cart_data" id="cartData" value="">
+    <input type="hidden" name="direccion_entrega" id="carritoDireccion" value="">
+    <input type="hidden" name="notas_adicionales" id="carritoNotas" value="">
 </form>
+
+<!-- Modal de carrito -->
+<div class="modal" id="carritoModal" tabindex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="carritoModalLabel">{% if request.session.language == 'en' %}Shopping Cart{% else %}Carrito de compras{% endif %}</h5>
+                <button type="button" class="btn-close" onclick="cerrarCarritoModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="cartItemsContainer"></div>
+                <div id="cartEmptyMessage" class="text-center text-muted py-4">{% if request.session.language == 'en' %}Your cart is empty.{% else %}Tu carrito está vacío.{% endif %}</div>
+
+                <div class="mb-3">
+                    <label for="checkoutDireccion" class="form-label">{% if request.session.language == 'en' %}Delivery Address{% else %}Dirección de entrega{% endif %}</label>
+                    <input type="text" id="checkoutDireccion" class="form-control" placeholder="{% if request.session.language == 'en' %}Enter delivery address{% else %}Ingresa la dirección de entrega{% endif %}">
+                </div>
+                <div class="mb-3">
+                    <label for="checkoutNotas" class="form-label">{% if request.session.language == 'en' %}Notes{% else %}Notas{% endif %}</label>
+                    <textarea id="checkoutNotas" class="form-control" rows="3" placeholder="{% if request.session.language == 'en' %}Delivery notes or preferences{% else %}Notas o preferencias de entrega{% endif %}"></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <strong>{% if request.session.language == 'en' %}Order total{% else %}Total del pedido{% endif %}:</strong>
+                    <span id="checkoutTotal">$0 COP</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="vaciarCarrito()">{% if request.session.language == 'en' %}Clear cart{% else %}Vaciar carrito{% endif %}</button>
+                <button type="button" class="btn btn-primary" onclick="finalizarCompra()">{% if request.session.language == 'en' %}Place order{% else %}Realizar pedido{% endif %}</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     let productoActual = {
@@ -1151,6 +1191,7 @@
         stock: 0,
         floricultor: ''
     };
+    let carrito = [];
 
     function abrirModal(button) {
         const id = button.dataset.productoId;
@@ -1159,8 +1200,6 @@
         const stock = parseInt(button.dataset.productoStock || 0, 10);
         const floricultor = button.dataset.productoFloricultor || 'Cultivo Local';
 
-        console.log('Abriendo modal:', {id, nombre, precio, stock, floricultor});
-        
         productoActual = {
             id: id,
             nombre: nombre,
@@ -1176,7 +1215,7 @@
         document.getElementById('precioUnitario').textContent = `$${precio.toLocaleString('es-CO')} COP`;
         document.getElementById('cantidadInput').value = 1;
         document.getElementById('cantidadInput').max = stock;
-        
+
         if (stock === 0) {
             document.getElementById('btnConfirmar').disabled = true;
             document.getElementById('stockAgotado').style.display = 'block';
@@ -1188,12 +1227,23 @@
         recalcularTotal();
         document.getElementById('modalCompra').classList.add('activo');
         document.body.style.overflow = 'hidden';
-        
-        console.log('Modal abierto exitosamente');
     }
 
     function cerrarModal() {
         document.getElementById('modalCompra').classList.remove('activo');
+        document.body.style.overflow = 'auto';
+    }
+
+    function abrirCarrito() {
+        actualizarCarritoUI();
+        document.getElementById('carritoModal').classList.add('show');
+        document.getElementById('carritoModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarCarritoModal() {
+        document.getElementById('carritoModal').classList.remove('show');
+        document.getElementById('carritoModal').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
 
@@ -1215,67 +1265,93 @@
         }
     }
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
     function recalcularTotal() {
         const cantidad = parseInt(document.getElementById('cantidadInput').value) || 1;
         const total = productoActual.precio * cantidad;
-        
+
         document.getElementById('cantidadTotal').textContent = cantidad;
         document.getElementById('totalFinal').textContent = `$${total.toLocaleString('es-CO')}`;
     }
 
-    function confirmarCompra() {
-        const cantidad = parseInt(document.getElementById('cantidadInput').value);
-        const direccion = document.getElementById('direccionEntrega').value.trim();
-        const notas = document.getElementById('notasAdicionales').value.trim();
+    function agregarAlCarrito(item) {
+        const existente = carrito.find(producto => producto.id === item.id);
+        if (existente) {
+            existente.cantidad = Math.min(existente.cantidad + item.cantidad, item.stock);
+        } else {
+            carrito.push(item);
+        }
+        actualizarCarritoUI();
+        cerrarModal();
+        alert('Producto agregado al carrito.');
+    }
 
-        if (!direccion) {
-            alert('Por favor ingresa la dirección de entrega.');
+    function actualizarCarritoUI() {
+        const cartCount = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        const cartTotal = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+        const cartCountElement = document.getElementById('cartCount');
+        const cartTotalText = document.getElementById('cartTotalText');
+        const checkoutTotal = document.getElementById('checkoutTotal');
+        if (cartCountElement) cartCountElement.textContent = cartCount;
+        if (cartTotalText) cartTotalText.textContent = `Total: $${cartTotal.toLocaleString('es-CO')} COP`;
+        if (checkoutTotal) checkoutTotal.textContent = `$${cartTotal.toLocaleString('es-CO')} COP`;
+
+        const container = document.getElementById('cartItemsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (!carrito.length) {
+            const emptyMessage = document.getElementById('cartEmptyMessage');
+            if (emptyMessage) emptyMessage.style.display = 'block';
             return;
         }
 
-        console.log('Confirmar compra - Producto ID:', productoActual.id, 'Cantidad:', cantidad, 'Dirección:', direccion, 'Notas:', notas);
-        
-        const form = document.getElementById('pedidoForm');
-        form.action = `/realizar-pedido/${productoActual.id}/`;
+        const emptyMessage = document.getElementById('cartEmptyMessage');
+        if (emptyMessage) emptyMessage.style.display = 'none';
 
-        document.getElementById('pedidoCantidad').value = cantidad;
-        document.getElementById('pedidoDireccion').value = direccion;
-        document.getElementById('pedidoNotas').value = notas;
+        carrito.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'd-flex align-items-center justify-content-between mb-3 border-bottom pb-2';
+            row.innerHTML = `
+                <div>
+                    <strong>${item.nombre}</strong><br>
+                    <small>${item.cantidad} x $${item.precio.toLocaleString('es-CO')} COP</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem('${item.id}')">Quitar</button>
+            `;
+            container.appendChild(row);
+        });
+    }
 
-        let csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
-        if (!csrfInput || !csrfInput.value.trim()) {
-            const token = getCookie('csrftoken');
-            if (token) {
-                if (!csrfInput) {
-                    csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    form.appendChild(csrfInput);
-                }
-                csrfInput.value = token;
-            } else {
-                console.error('No se encontró token CSRF en el formulario ni en cookies.');
-            }
+    function removerItem(id) {
+        carrito = carrito.filter(item => item.id !== id);
+        actualizarCarritoUI();
+    }
+
+    function vaciarCarrito() {
+        carrito = [];
+        actualizarCarritoUI();
+        cerrarCarritoModal();
+    }
+
+    function confirmarCompra() {
+        const cantidad = parseInt(document.getElementById('cantidadInput').value);
+
+        if (!cantidad || cantidad < 1) {
+            alert('La cantidad debe ser al menos 1.');
+            return;
+        }
+        if (cantidad > productoActual.stock) {
+            alert('La cantidad solicitada excede el stock disponible.');
+            return;
         }
 
-        form.submit();
-        
-        cerrarModal();
+        agregarAlCarrito({
+            id: productoActual.id,
+            nombre: productoActual.nombre,
+            precio: productoActual.precio,
+            cantidad: cantidad,
+            stock: productoActual.stock
+        });
     }
 
     // Cerrar modal al hacer click en el overlay
@@ -1285,10 +1361,38 @@
         }
     });
 
+    function finalizarCompra() {
+        if (!carrito.length) {
+            alert('Tu carrito está vacío.');
+            return;
+        }
+
+        const direccion = document.getElementById('checkoutDireccion').value.trim();
+        const notas = document.getElementById('checkoutNotas').value.trim();
+
+        if (!direccion) {
+            alert('Por favor ingresa una dirección de entrega.');
+            return;
+        }
+
+        document.getElementById('carritoDireccion').value = direccion;
+        document.getElementById('carritoNotas').value = notas;
+        document.getElementById('cartData').value = JSON.stringify(carrito);
+
+        document.getElementById('carritoForm').submit();
+    }
+
+    document.getElementById('carritoModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarCarritoModal();
+        }
+    });
+
     // Permitir cerrar con ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarModal();
+            cerrarCarritoModal();
         }
     });
 </script>

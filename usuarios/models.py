@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
@@ -60,6 +62,7 @@ class Pedido(models.Model):
     fecha_pedido = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     notas = models.TextField(blank=True, null=True)
+    pedido_grupo = models.UUIDField(null=True, blank=True, editable=False)
 
     def total_pagar(self):
         return self.cantidad * self.producto.precio_por_tallo

@@ -648,6 +648,33 @@
 
             </div>
 
+    <form method="POST" enctype="multipart/form-data" class="form-section" id="perfil">
+        {% csrf_token %}
+        
+        <h3>Información Personal</h3>
+        
+        <!-- Foto de Perfil -->
+        <div class="form-row full">
+            <div class="form-group image-upload-wrapper">
+                <label for="id_foto_perfil">Foto de Perfil</label>
+                <div class="image-preview">
+                    {% if usuario.foto_perfil %}
+                        <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
+                    {% else %}
+                        <i class="fas fa-image"></i>
+                    {% endif %}
+                </div>
+                <input 
+                    type="file" 
+                    id="id_foto_perfil" 
+                    name="foto_perfil" 
+                    accept="image/*"
+                    class="form-control"
+                    onchange="previewImage(event)"
+                >
+                <small class="text-muted" style="margin-top: 8px;">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+            </div>
+        </div>
             <div class="form-row">
 
                 <div class="form-group">

@@ -37,6 +37,7 @@ urlpatterns = [
     # Rutas del Mercado y Pedidos
     path('mercado/', views.mercado_view, name='mercado'),
     path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
+    path('realizar-pedido-carrito/', views.realizar_pedido_carrito, name='realizar_pedido_carrito'),
     
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
     path('notificaciones/', views.notificaciones_view, name='notificaciones'),
