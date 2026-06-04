@@ -20,6 +20,22 @@
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <p>{% if request.session.language == 'en' %}Please correct the errors below.{% else %}Por favor corrige los errores a continuación.{% endif %}</p>
+                <ul class="mb-0">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
         <div class="form-section">
             <label for="{{ form.nombre_flor.id_for_label }}">{% if request.session.language == 'en' %}Flower Name{% else %}Nombre de la Flor{% endif %}</label>
             {{ form.nombre_flor }}

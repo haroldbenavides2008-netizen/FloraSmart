@@ -618,37 +618,6 @@
                 <small class="text-muted" style="margin-top: 8px;">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
             </div>
         </div>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <div class="form-row full">
-
-                <div class="form-group">
-
-                    <label>{% if request.session.language == 'en' %}Profile Photo{% else %}Foto de Perfil{% endif %}</label>
-
-                    <div class="image-preview">
-
-                        {% if usuario.foto_perfil %}
-                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
-                        {% else %}
-                            <i class="fas fa-image"></i>
-                        {% endif %}
-
-                    </div>
-
-                    <input
-                        type="file"
-                        id="id_foto_perfil"
-                        name="foto_perfil"
-                        accept="image/*"
-                        onchange="previewImage(event)"
-                    >
-
-                </div>
-
-            </div>
-
             <div class="form-row">
 
                 <div class="form-group">

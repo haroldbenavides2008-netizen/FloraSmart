@@ -9,7 +9,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-success">📦 {{ titulo }}</h2>
-        <span class="badge bg-primary">{{ pedidos.count }} {% if request.session.language == 'en' %}records{% else %}registros{% endif %}</span>
+        <span class="badge bg-primary">{{ ordenes|length }} {% if request.session.language == 'en' %}records{% else %}registros{% endif %}</span>
     </div>
 
     <div class="card card-pedidos shadow-sm">
@@ -21,63 +21,69 @@
                             {% if request.user.rol == 'floricultor' %}
                                 <th class="ps-4">{% if request.session.language == 'en' %}Customer{% else %}Cliente{% endif %}</th>
                             {% endif %}
-                            <th class="ps-4">{% if request.session.language == 'en' %}Product{% else %}Producto{% endif %}</th>
+                            <th class="ps-4">{% if request.session.language == 'en' %}Products{% else %}Productos{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Address{% else %}Dirección{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Notes{% else %}Notas{% endif %}</th>
-                            <th>{% if request.session.language == 'en' %}Quantity{% else %}Cantidad{% endif %}</th>
+                            <th>{% if request.session.language == 'en' %}Qty{% else %}Cant.{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Date{% else %}Fecha{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Status{% else %}Estado{% endif %}</th>
                             <th class="text-center">{% if request.session.language == 'en' %}Actions{% else %}Acciones{% endif %}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for pedido in pedidos %}
+                        {% for orden in ordenes %}
                         <tr>
                             {% if request.user.rol == 'floricultor' %}
                                 <td class="ps-4">
-                                    <span class="nombre-producto">{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}</span>
-                                    <br><small class="text-muted">{% if request.session.language == 'en' %}{{ pedido.cliente.nombre_empresa_o_finca|default:'No farm specified' }}{% else %}{{ pedido.cliente.nombre_empresa_o_finca|default:'Sin finca' }}{% endif %}</small>
+                                    <span class="nombre-producto">{{ orden.cliente.get_full_name|default:orden.cliente.username }}</span>
+                                    <br><small class="text-muted">{% if request.session.language == 'en' %}{{ orden.cliente.nombre_empresa_o_finca|default:'No farm specified' }}{% else %}{{ orden.cliente.nombre_empresa_o_finca|default:'Sin finca' }}{% endif %}</small>
                                 </td>
                             {% endif %}
                             <td class="ps-4">
-                                <span class="nombre-producto">{{ pedido.producto.nombre_flor }}</span>
+                                {% if orden.numero_items > 1 %}
+                                    <span class="nombre-producto">{{ orden.numero_items }} {% if request.session.language == 'en' %}items{% else %}artículos{% endif %}</span>
+                                    <br><small class="text-muted">{{ orden.productos_resumen|truncatewords:3 }}</small>
+                                {% else %}
+                                    <span class="nombre-producto">{{ orden.primer_item.producto.nombre_flor }}</span>
+                                {% endif %}
                             </td>
                             <td class="text-truncate" style="max-width: 220px;">
-                                <small class="text-muted">{{ pedido.direccion_entrega|default:'-' }}</small>
+                                <small class="text-muted">{{ orden.direccion_entrega|default:'-' }}</small>
                             </td>
                             <td class="text-truncate" style="max-width: 220px;">
-                                <small class="text-muted">{{ pedido.notas_adicionales|default:'-' }}</small>
+                                <small class="text-muted">{{ orden.notas_adicionales|default:'-' }}</small>
                             </td>
-                            <td><span class="badge rounded-pill badge-cantidad">{{ pedido.cantidad }} u.</span></td>
-                            <td>{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
-                            <td><span class="badge bg-info">{{ pedido.get_estado_display }}</span></td>
+                            <td><span class="badge rounded-pill badge-cantidad">{{ orden.cantidad_total }} u.</span></td>
+                            <td>{{ orden.fecha_pedido|date:"d/m/Y" }}</td>
+                            <td><span class="badge bg-info">{{ orden.estado }}</span></td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-success" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#detalleModal"
-                                        data-nombre-comprador="{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}"
-                                        data-finca="{{ pedido.cliente.nombre_empresa_o_finca|default:'No especificada' }}"
-                                        data-producto="{{ pedido.producto.nombre_flor }}"
-                                        data-cantidad="{{ pedido.cantidad }}"
-                                        data-fecha="{{ pedido.fecha_pedido|date:'d/m/Y H:i' }}"
-                                        data-estado="{{ pedido.get_estado_display }}"
-                                        data-direccion="{{ pedido.direccion_entrega|default:'-'|escapejs }}"
-                                        data-notas="{{ pedido.notas_adicionales|default:'-'|escapejs }}"
+                                        data-nombre-comprador="{{ orden.cliente.get_full_name|default:orden.cliente.username }}"
+                                        data-finca="{{ orden.cliente.nombre_empresa_o_finca|default:'No especificada' }}"
+                                        data-productos="{{ orden.productos_resumen }}"
+                                        data-cantidad="{{ orden.cantidad_total }}"
+                                        data-numero-items="{{ orden.numero_items }}"
+                                        data-fecha="{{ orden.fecha_pedido|date:'d/m/Y H:i' }}"
+                                        data-estado="{{ orden.estado }}"
+                                        data-direccion="{{ orden.direccion_entrega|default:'-'|escapejs }}"
+                                        data-notas="{{ orden.notas_adicionales|default:'-'|escapejs }}"
                                         title="{% if request.session.language == 'en' %}View order details{% else %}Ver detalles del pedido{% endif %}">
                                     {% if request.session.language == 'en' %}Detail{% else %}Detalle{% endif %}
                                 </button>
 
                                 {% if request.user.rol == 'floricultor' %}
-                                    {% if pedido.estado == 'pendiente' %}
-                                        <form method="POST" action="{% url 'cambiar_estado_pedido' pedido.id %}" style="display:inline;">
+                                    {% if orden.estado == 'pendiente' %}
+                                        <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
                                             {% csrf_token %}
                                             <input type="hidden" name="estado" value="en_camino">
                                             <button type="submit" class="btn btn-sm btn-outline-warning" title="Marcar como En Camino">
                                                 🚚 En Camino
                                             </button>
                                         </form>
-                                    {% elif pedido.estado == 'en_camino' %}
-                                        <form method="POST" action="{% url 'cambiar_estado_pedido' pedido.id %}" style="display:inline;">
+                                    {% elif orden.estado == 'en_camino' %}
+                                        <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
                                             {% csrf_token %}
                                             <input type="hidden" name="estado" value="entregado">
                                             <button type="submit" class="btn btn-sm btn-outline-primary" title="Marcar como Entregado">
@@ -87,13 +93,13 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if request.user.rol != 'floricultor' and pedido.estado == 'pendiente' %}
-                                    <a href="{% url 'editar_pedido' pedido.id %}" 
+                                {% if request.user.rol != 'floricultor' and orden.estado == 'pendiente' %}
+                                    <a href="{% url 'editar_pedido' orden.representante_id %}" 
                                        class="btn btn-sm btn-outline-primary" 
-                                       title="Editar pedido">
-                                        ✏️ Editar
+                                       title="{% if request.session.language == 'en' %}Edit order{% else %}Editar pedido{% endif %}">
+                                        ✏️ {% if request.session.language == 'en' %}Edit{% else %}Editar{% endif %}
                                     </a>
-                                    <form method="POST" action="{% url 'cancelar_pedido' pedido.id %}" style="display:inline;">
+                                    <form method="POST" action="{% url 'cancelar_pedido' orden.representante_id %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-outline-danger" 
                                                onclick="return confirm('{% if request.session.language == 'en' %}Are you sure you want to cancel this order?{% else %}¿Estás seguro de que deseas cancelar este pedido?{% endif %}')"
@@ -106,7 +112,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="{% if request.user.rol == 'floricultor' %}8{% else %}7{% endif %}" class="text-center py-5 text-muted">{% if request.session.language == 'en' %}No orders registered yet.{% else %}No hay pedidos registrados.{% endif %}</td>
+                            <td colspan="8" class="text-center py-5 text-muted">{% if request.session.language == 'en' %}No orders registered yet.{% else %}No hay pedidos registrados.{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -116,38 +122,42 @@
     </div>
 </div>
 
-<!--  Detalle del Pedido -->
+<!-- Detalle del Pedido / Orden -->
 <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalleModalLabel">{% if request.session.language == 'en' %}Order Details{% else %}Detalle del Pedido{% endif %}</h5>
+                <h5 class="modal-title" id="detalleModalLabel">{% if request.session.language == 'en' %}Order Details{% else %}Detalle de la Orden{% endif %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <strong>Producto:</strong> <span id="modal-producto"></span>
+                    <strong>{% if request.session.language == 'en' %}Products{% else %}Productos{% endif %}:</strong> <span id="modal-productos"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Cantidad:</strong> <span id="modal-cantidad"></span>
+                    <strong>{% if request.session.language == 'en' %}Items{% else %}Artículos{% endif %}:</strong> <span id="modal-numero-items"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Fecha del Pedido:</strong> <span id="modal-fecha"></span>
+                    <strong>{% if request.session.language == 'en' %}Total Quantity{% else %}Cantidad Total{% endif %}:</strong> <span id="modal-cantidad"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Estado:</strong> <span id="modal-estado"></span>
+                    <strong>{% if request.session.language == 'en' %}Order Date{% else %}Fecha del Pedido{% endif %}:</strong> <span id="modal-fecha"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Dirección de entrega:</strong> <span id="modal-direccion"></span>
+                    <strong>{% if request.session.language == 'en' %}Status{% else %}Estado{% endif %}:</strong> <span id="modal-estado"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Notas adicionales:</strong> <span id="modal-notas"></span>
+                    <strong>{% if request.session.language == 'en' %}Delivery Address{% else %}Dirección de entrega{% endif %}:</strong> <span id="modal-direccion"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Nombre del Comprador:</strong> <span id="modal-nombre-comprador"></span>
+                    <strong>{% if request.session.language == 'en' %}Additional Notes{% else %}Notas adicionales{% endif %}:</strong> <span id="modal-notas"></span>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <strong>{% if request.session.language == 'en' %}Buyer Name{% else %}Nombre del Comprador{% endif %}:</strong> <span id="modal-nombre-comprador"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>Finca:</strong> <span id="modal-finca"></span>
+                    <strong>{% if request.session.language == 'en' %}Farm/Company{% else %}Finca/Empresa{% endif %}:</strong> <span id="modal-finca"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -164,7 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var button = event.relatedTarget;
         var nombreComprador = button.getAttribute('data-nombre-comprador');
         var finca = button.getAttribute('data-finca');
-        var producto = button.getAttribute('data-producto');
+        var productos = button.getAttribute('data-productos');
+        var numeroItems = button.getAttribute('data-numero-items');
         var cantidad = button.getAttribute('data-cantidad');
         var fecha = button.getAttribute('data-fecha');
         var estado = button.getAttribute('data-estado');
@@ -173,8 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('modal-nombre-comprador').textContent = nombreComprador;
         document.getElementById('modal-finca').textContent = finca;
-        document.getElementById('modal-producto').textContent = producto;
-        document.getElementById('modal-cantidad').textContent = cantidad;
+        document.getElementById('modal-productos').textContent = productos;
+        document.getElementById('modal-numero-items').textContent = numeroItems;
+        document.getElementById('modal-cantidad').textContent = cantidad + ' u.';
         document.getElementById('modal-fecha').textContent = fecha;
         document.getElementById('modal-estado').textContent = estado;
         document.getElementById('modal-direccion').textContent = direccion;
