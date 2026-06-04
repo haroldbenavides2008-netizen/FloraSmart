@@ -1,3 +1,6 @@
+import json
+import uuid
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -68,10 +71,9 @@ def home_view(request):
     
     contexto = {}
     if request.user.rol == 'floricultor':
-        contexto['mis_productos'] = Producto.objects.filter(floricultor=request.user)
+        contexto['mis_productos'] = Producto.objects.filter(floricultor=request.user).order_by('-fecha_publicacion')
     else:
-        contexto['productos_recientes'] = Producto.objects.all().order_by('-fecha_publicacion')[:4]
-        
+        contexto['productos_mercado'] = Producto.objects.all().order_by('-fecha_publicacion')[:4]
     return render(request, 'home.html', contexto)
 
 # 4. AGREGAR PRODUCTO (GESTIÓN FLORICULTOR)
@@ -179,6 +181,81 @@ def realizar_pedido(request, producto_id):
 
     return redirect('mercado')
 
+# 7.1. VISTA PARA REALIZAR PEDIDO CON VARIOS PRODUCTOS
+@login_required
+def realizar_pedido_carrito(request):
+    if request.method != 'POST':
+        return redirect('mercado')
+
+    cart_data = request.POST.get('cart_data', '').strip()
+    direccion = request.POST.get('direccion_entrega', '').strip()
+    notas_adicionales = request.POST.get('notas_adicionales', '').strip()
+
+    if not cart_data:
+        messages.error(request, "No hay productos en el carrito para procesar el pedido.")
+        return redirect('mercado')
+
+    if not direccion:
+        messages.error(request, "Debes ingresar la dirección de entrega para completar la compra.")
+        return redirect('mercado')
+
+    try:
+        cart_items = json.loads(cart_data)
+    except json.JSONDecodeError:
+        messages.error(request, "Los datos del carrito no son válidos.")
+        return redirect('mercado')
+
+    if not isinstance(cart_items, list) or not cart_items:
+        messages.error(request, "No hay productos válidos en el carrito.")
+        return redirect('mercado')
+
+    pedido_grupo = uuid.uuid4()
+    cantidad_total = 0
+    productos_pedidos = []
+
+    notas_finales = f"Dirección de entrega: {direccion}"
+    if notas_adicionales:
+        notas_finales += f" | Notas: {notas_adicionales}"
+
+    for item in cart_items:
+        producto_id = item.get('id')
+        cantidad = int(item.get('cantidad', 1)) if item.get('cantidad') else 1
+        if cantidad < 1:
+            cantidad = 1
+
+        producto = get_object_or_404(Producto, id=producto_id)
+        if producto.floricultor == request.user:
+            messages.error(request, "No puedes comprar tus propios productos.")
+            return redirect('mercado')
+
+        if producto.cantidad_disponible <= 0:
+            messages.error(request, f"No hay stock disponible para {producto.nombre_flor}.")
+            return redirect('mercado')
+
+        if cantidad > producto.cantidad_disponible:
+            cantidad = producto.cantidad_disponible
+
+        Pedido.objects.create(
+            cliente=request.user,
+            producto=producto,
+            cantidad=cantidad,
+            notas=notas_finales,
+            pedido_grupo=pedido_grupo
+        )
+
+        producto.cantidad_disponible = max(producto.cantidad_disponible - cantidad, 0)
+        producto.save()
+
+        cantidad_total += cantidad
+        productos_pedidos.append(producto.nombre_flor)
+
+    mensaje_productos = ', '.join(productos_pedidos[:3])
+    if len(productos_pedidos) > 3:
+        mensaje_productos += f" y {len(productos_pedidos) - 3} más"
+
+    messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad_total} tallo(s) de {mensaje_productos}.")
+    return redirect('mis_pedidos')
+
 # 8. VISTA DE MIS PEDIDOS / PEDIDOS RECIBIDOS
 def mis_pedidos_view(request):
     if not request.user.is_authenticated:
@@ -191,6 +268,9 @@ def mis_pedidos_view(request):
         pedidos = Pedido.objects.filter(cliente=request.user).order_by('-fecha_pedido')
         titulo = "Mis Pedidos"
 
+    ordenes = []
+    grupos = {}
+
     for pedido in pedidos:
         pedido.direccion_entrega = ''
         pedido.notas_adicionales = ''
@@ -200,9 +280,56 @@ def mis_pedidos_view(request):
             if len(partes) > 1:
                 pedido.notas_adicionales = partes[1].strip()
 
-    return render(request, 'mis_pedidos.html', {'pedidos': pedidos, 'titulo': titulo})
+        llave = str(pedido.pedido_grupo) if pedido.pedido_grupo else f'single-{pedido.id}'
 
-# 9. VISTA DE LISTA DE CHATS
+        if llave not in grupos:
+            grupos[llave] = {
+                'clave': llave,
+                'representante_id': pedido.id,
+                'cliente': pedido.cliente,
+                'direccion_entrega': pedido.direccion_entrega,
+                'notas_adicionales': pedido.notas_adicionales,
+                'fecha_pedido': pedido.fecha_pedido,
+                'estado': pedido.estado,
+                'items': [],
+                'cantidad_total': 0,
+                'productos_resumen': '',
+            }
+
+        grupos[llave]['items'].append(pedido)
+        grupos[llave]['cantidad_total'] += pedido.cantidad
+
+    for orden in grupos.values():
+        productos = []
+        for item in orden['items']:
+            nombre = item.producto.nombre_flor
+            if item.producto.variedad:
+                nombre += f" {item.producto.variedad}"
+            productos.append(nombre)
+        orden['productos_resumen'] = ', '.join(productos)
+        orden['primer_item'] = orden['items'][0]
+        orden['numero_items'] = len(orden['items'])
+
+    ordenes = list(grupos.values())
+    ordenes.sort(key=lambda o: o['fecha_pedido'], reverse=True)
+    pedidos_count = len(ordenes)
+
+    return render(request, 'mis_pedidos.html', {'ordenes': ordenes, 'titulo': titulo, 'pedidos_count': pedidos_count})
+
+# 9. VISTA DE NOTIFICACIONES
+@login_required
+def notificaciones_view(request):
+    """Vista dedicada para que el cliente vea el avance de su pedido."""
+    if request.user.rol != 'comprador_b2c':
+        return redirect('home')
+
+    ultimo_pedido = Pedido.objects.filter(cliente=request.user).order_by('-fecha_pedido').first()
+    contexto = {
+        'ultimo_pedido': ultimo_pedido,
+    }
+    return render(request, 'notificaciones.html', contexto)
+
+# 10. VISTA DE LISTA DE CHATS
 @login_required
 def lista_chats_view(request):
     """
@@ -286,18 +413,23 @@ def cancelar_pedido(request, pedido_id):
         messages.error(request, "No tienes permiso para cancelar este pedido.")
         return redirect('mis_pedidos')
     
-    # Solo permitir cancelación si está pendiente
-    if pedido.estado != 'pendiente':
-        messages.error(request, "Solo puedes cancelar pedidos en estado 'pendiente'.")
-        return redirect('mis_pedidos')
-    
-    # Cambiar estado a cancelado y devolver stock
-    pedido.estado = 'cancelado'
-    pedido.save()
-    
-    # Devolver la cantidad al stock del producto
-    pedido.producto.cantidad_disponible += pedido.cantidad
-    pedido.producto.save()
+    # Determinar si es un pedido agrupado
+    if pedido.pedido_grupo:
+        pedidos_a_cancelar = Pedido.objects.filter(pedido_grupo=pedido.pedido_grupo)
+    else:
+        pedidos_a_cancelar = [pedido]
+
+    # Solo permitir cancelación si todos los pedidos están pendientes
+    for item in pedidos_a_cancelar:
+        if item.estado != 'pendiente':
+            messages.error(request, "Solo puedes cancelar pedidos en estado 'pendiente'.")
+            return redirect('mis_pedidos')
+
+    for item in pedidos_a_cancelar:
+        item.estado = 'cancelado'
+        item.save()
+        item.producto.cantidad_disponible += item.cantidad
+        item.producto.save()
     
     messages.success(request, "Pedido cancelado exitosamente.")
     return redirect('mis_pedidos')
@@ -315,18 +447,25 @@ def cambiar_estado_pedido(request, pedido_id):
         messages.error(request, 'Estado no válido para actualizar el pedido.')
         return redirect('mis_pedidos')
 
-    if nuevo_estado == 'en_camino' and pedido.estado != 'pendiente':
-        messages.error(request, 'Solo puedes marcar pedidos pendientes como "En Camino".')
-        return redirect('mis_pedidos')
+    if pedido.pedido_grupo:
+        pedidos_actualizar = Pedido.objects.filter(pedido_grupo=pedido.pedido_grupo)
+    else:
+        pedidos_actualizar = [pedido]
 
-    if nuevo_estado == 'entregado' and pedido.estado != 'en_camino':
-        messages.error(request, 'Solo puedes marcar pedidos en camino como "Entregado".')
-        return redirect('mis_pedidos')
+    if nuevo_estado == 'en_camino':
+        if any(item.estado != 'pendiente' for item in pedidos_actualizar):
+            messages.error(request, 'Solo puedes marcar pedidos pendientes como "En Camino".')
+            return redirect('mis_pedidos')
+    elif nuevo_estado == 'entregado':
+        if any(item.estado != 'en_camino' for item in pedidos_actualizar):
+            messages.error(request, 'Solo puedes marcar pedidos en camino como "Entregado".')
+            return redirect('mis_pedidos')
 
-    pedido.estado = nuevo_estado
-    pedido.save()
+    for item in pedidos_actualizar:
+        item.estado = nuevo_estado
+        item.save()
 
-    messages.success(request, f"Pedido #{pedido.id} actualizado a {pedido.get_estado_display()}.")
+    messages.success(request, f"Pedido actualizado a {pedido.get_estado_display()}.")
     return redirect('mis_pedidos')
 
 # 12. VISTA PARA EDITAR PEDIDO
@@ -342,6 +481,11 @@ def editar_pedido(request, pedido_id):
         messages.error(request, "No tienes permiso para editar este pedido.")
         return redirect('mis_pedidos')
     
+    # No permitir edición de pedidos agrupados
+    if pedido.pedido_grupo:
+        messages.error(request, "No puedes editar un pedido con varios productos. Cancelalo y realiza uno nuevo si necesitas cambiarlo.")
+        return redirect('mis_pedidos')
+
     # Solo permitir edición si está pendiente
     if pedido.estado != 'pendiente':
         messages.error(request, "Solo puedes editar pedidos en estado 'pendiente'.")

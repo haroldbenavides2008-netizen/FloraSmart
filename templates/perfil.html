@@ -555,6 +555,33 @@
 
     </div>
 
+    <div class="profile-top-actions">
+        <a href="#perfil" class="action-pill active">Perfil</a>
+        <a href="#seguridad" class="action-pill">Seguridad</a>
+        <a href="#preferencias" class="action-pill">Preferencias</a>
+    </div>
+
+    <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <strong>Configuración rápida:</strong> Actualiza tu información de contacto, foto de perfil y datos de tu finca desde aquí.
+    </div>
+
+    <div class="config-grid">
+        <div class="config-card config-card-primary">
+            <div>
+                <h3>Tu cuenta</h3>
+                <p>Visualiza y actualiza tus datos de contacto, nombre y dirección.</p>
+            </div>
+            <div class="config-icon"><i class="fas fa-user-cog"></i></div>
+        </div>
+        <div class="config-card config-card-secondary">
+            <div>
+                <h3>Preferencias</h3>
+                <p>Personaliza tu experiencia y mantente al día con tus pedidos.</p>
+            </div>
+            <div class="config-icon"><i class="fas fa-sliders-h"></i></div>
+        </div>
+    </div>
     <div class="form-section" id="profile-form">
 
         <h3>{% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}</h3>
@@ -564,37 +591,33 @@
             {% if request.session.language == 'en' %}Changes will be saved when you click "Save changes".{% else %}Los cambios se guardarán al presionar "Guardar cambios".{% endif %}
         </div>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <div class="form-row full">
-
-                <div class="form-group">
-
-                    <label>{% if request.session.language == 'en' %}Profile Photo{% else %}Foto de Perfil{% endif %}</label>
-
-                    <div class="image-preview">
-
-                        {% if usuario.foto_perfil %}
-                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
-                        {% else %}
-                            <i class="fas fa-image"></i>
-                        {% endif %}
-
-                    </div>
-
-                    <input
-                        type="file"
-                        id="id_foto_perfil"
-                        name="foto_perfil"
-                        accept="image/*"
-                        onchange="previewImage(event)"
-                    >
-
+    <form method="POST" enctype="multipart/form-data" class="form-section" id="perfil">
+        {% csrf_token %}
+        
+        <h3>Información Personal</h3>
+        
+        <!-- Foto de Perfil -->
+        <div class="form-row full">
+            <div class="form-group image-upload-wrapper">
+                <label for="id_foto_perfil">Foto de Perfil</label>
+                <div class="image-preview">
+                    {% if usuario.foto_perfil %}
+                        <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
+                    {% else %}
+                        <i class="fas fa-image"></i>
+                    {% endif %}
                 </div>
-
+                <input 
+                    type="file" 
+                    id="id_foto_perfil" 
+                    name="foto_perfil" 
+                    accept="image/*"
+                    class="form-control"
+                    onchange="previewImage(event)"
+                >
+                <small class="text-muted" style="margin-top: 8px;">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
             </div>
-
+        </div>
             <div class="form-row">
 
                 <div class="form-group">
