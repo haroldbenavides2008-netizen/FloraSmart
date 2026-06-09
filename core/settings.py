@@ -92,5 +92,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-# 11. Configuración de Claves Primarias por Defecto
+# 11. Configuración de Wompi para pagos
+WOMPI_PUBLIC_KEY = os.getenv('WOMPI_PUBLIC_KEY', 'your_public_key_here')
+WOMPI_PRIVATE_KEY = os.getenv('WOMPI_PRIVATE_KEY', 'your_private_key_here')
+WOMPI_REDIRECT_URL = os.getenv('WOMPI_REDIRECT_URL', 'http://localhost:8000/pagos/wompi/retorno/')
+WOMPI_WEBHOOK_URL = os.getenv('WOMPI_WEBHOOK_URL', 'http://localhost:8000/pagos/wompi/webhook/')
+WOMPI_SANDBOX_URL = 'https://sandbox.wompi.co'
+
+# 12. Configuración de Claves Primarias por Defecto
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

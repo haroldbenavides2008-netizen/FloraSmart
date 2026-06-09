@@ -63,6 +63,15 @@ class Pedido(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     notas = models.TextField(blank=True, null=True)
     pedido_grupo = models.UUIDField(null=True, blank=True, editable=False)
+    PAGO_ESTADOS = (
+        ('pendiente', 'Pendiente'),
+        ('pagado', 'Pagado'),
+        ('rechazado', 'Rechazado'),
+        ('cancelado', 'Cancelado'),
+    )
+    estado_pago = models.CharField(max_length=20, choices=PAGO_ESTADOS, default='pendiente')
+    wompi_transaction_id = models.CharField(max_length=200, blank=True, null=True)
+    wompi_reference = models.CharField(max_length=200, blank=True, null=True)
 
     def total_pagar(self):
         return self.cantidad * self.producto.precio_por_tallo

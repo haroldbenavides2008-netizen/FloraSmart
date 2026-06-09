@@ -38,6 +38,9 @@ urlpatterns = [
     path('mercado/', views.mercado_view, name='mercado'),
     path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
     path('realizar-pedido-carrito/', views.realizar_pedido_carrito, name='realizar_pedido_carrito'),
+    path('pedidos/<int:pedido_id>/pagar/', views.pagar_pedido, name='pagar_pedido'),
+    path('pagos/wompi/retorno/', views.wompi_retorno, name='wompi_retorno'),
+    path('pagos/wompi/webhook/', views.wompi_webhook, name='wompi_webhook'),
     
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
     path('notificaciones/', views.notificaciones_view, name='notificaciones'),
