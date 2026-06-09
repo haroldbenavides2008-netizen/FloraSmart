@@ -1,10 +1,14 @@
 import json
 import uuid
+import requests
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.db.models import Q
+from django.conf import settings
+from django.utils import timezone
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 
 # Importación de modelos y formularios
@@ -13,6 +17,9 @@ from .forms import ProductoForm, PerfilForm
 
 # 1. VISTA DE REGISTRO (SIN FIREBASE)
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -22,7 +29,6 @@ def register_view(request):
 
         try:
             # Creamos el usuario directamente en Django
-            # El email ya no chocará con Firebase
             user = Usuario.objects.create_user(
                 username=username,
                 email=email,
@@ -30,12 +36,16 @@ def register_view(request):
                 rol=rol,
                 nombre_empresa_o_finca=empresa
             )
-            
-            login(request, user)
-            messages.success(request, f"¡Bienvenida a FloraSmart, {username}!")
-            return redirect('home')
+
+            # Autenticamos el usuario recién creado antes de iniciar sesión
+            authenticated_user = authenticate(request, username=username, password=password)
+            if authenticated_user is not None:
+                login(request, authenticated_user)
+                messages.success(request, f"¡Bienvenida a FloraSmart, {username}!")
+                return redirect('home')
+
+            return render(request, 'register.html', {'error': 'No se pudo iniciar sesión automáticamente. Intenta iniciar sesión manualmente.'})
         except Exception as e:
-            # Ahora el error nos dirá exactamente qué campo de Django falló
             return render(request, 'register.html', {'error': f"Error: {e}"})
 
     return render(request, 'register.html')
@@ -256,6 +266,137 @@ def realizar_pedido_carrito(request):
     messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad_total} tallo(s) de {mensaje_productos}.")
     return redirect('mis_pedidos')
 
+# Helpers para pagos Wompi
+
+def calcular_total_pedido(pedidos):
+    return sum(item.cantidad * item.producto.precio_por_tallo for item in pedidos)
+
+
+def obtener_aceptance_token(public_key):
+    url = f"https://sandbox.wompi.co/v1/merchants/{public_key}/acceptance_token"
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+    return response.json().get('data', {}).get('presigned_acceptance_token')
+
+
+def obtener_pedidos_grupo(pedido):
+    if pedido.pedido_grupo:
+        return list(Pedido.objects.filter(pedido_grupo=pedido.pedido_grupo))
+    return [pedido]
+
+
+def pagar_pedido(request, pedido_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
+    if pedido.estado != 'pendiente':
+        messages.error(request, 'Solo es posible pagar pedidos pendientes.')
+        return redirect('mis_pedidos')
+
+    if pedido.estado_pago == 'pagado':
+        messages.info(request, 'Este pedido ya está pagado.')
+        return redirect('mis_pedidos')
+
+    pedidos = obtener_pedidos_grupo(pedido)
+    total = calcular_total_pedido(pedidos)
+    reference = f"pedido-{pedido.id}-{pedido.pedido_grupo or pedido.id}"
+
+    try:
+        acceptance_token = obtener_aceptance_token(settings.WOMPI_PUBLIC_KEY)
+        if not acceptance_token:
+            raise ValueError('No se obtuvo el token de aceptación de Wompi.')
+
+        payload = {
+            'acceptance_token': acceptance_token,
+            'amount_in_cents': int(total * 100),
+            'currency': 'COP',
+            'customer_email': request.user.email,
+            'payment_method': {'type': 'NEQUI'},
+            'reference': reference,
+            'redirect_url': settings.WOMPI_REDIRECT_URL,
+            'metadata': {
+                'pedido_id': str(pedido.id),
+                'pedido_grupo': str(pedido.pedido_grupo) if pedido.pedido_grupo else '',
+            }
+        }
+
+        response = requests.post(
+            f"{settings.WOMPI_SANDBOX_URL}/v1/transactions",
+            json=payload,
+            headers={'Authorization': f'Bearer {settings.WOMPI_PRIVATE_KEY}'},
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json().get('data', {})
+        transaction = data.get('transaction', data)
+
+        pedido.wompi_transaction_id = transaction.get('id')
+        pedido.wompi_reference = reference
+        pedido.estado_pago = 'pendiente'
+        pedido.save()
+
+        redirect_url = transaction.get('redirect_url') or data.get('presigned_acceptance_url') or data.get('payment_method', {}).get('type')
+        if redirect_url:
+            return redirect(redirect_url)
+
+        messages.error(request, 'No se pudo generar la página de pago de Wompi. Intenta de nuevo más tarde.')
+    except Exception as exc:
+        messages.error(request, f"Error al crear pago con Wompi: {exc}")
+
+    return redirect('mis_pedidos')
+
+
+def wompi_retorno(request):
+    messages.success(request, 'Tu pago está en proceso de verificación. Si fue aprobado, el pedido se actualizará pronto.')
+    return redirect('mis_pedidos')
+
+
+def wompi_webhook(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Método no permitido')
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest('JSON inválido')
+
+    event_data = payload.get('data', {})
+    transaction = event_data.get('transaction', event_data)
+    reference = transaction.get('reference')
+    status = transaction.get('status')
+
+    if not reference:
+        return HttpResponseBadRequest('Referencia ausente')
+
+    pedidos = Pedido.objects.filter(wompi_reference=reference)
+    if not pedidos.exists() and '-' in reference:
+        ref_parts = reference.split('-', 2)
+        if len(ref_parts) >= 2:
+            pedido_id = ref_parts[1]
+            pedidos = Pedido.objects.filter(id=pedido_id)
+
+    if not pedidos.exists():
+        return HttpResponse('Pedido no encontrado', status=404)
+
+    if status == 'APPROVED':
+        for item in pedidos:
+            item.estado_pago = 'pagado'
+            item.save()
+        return HttpResponse('Pago aprobado')
+
+    if status in ['DECLINED', 'ERROR', 'VOIDED']:
+        for item in pedidos:
+            if item.estado == 'pendiente':
+                item.estado = 'cancelado'
+                item.estado_pago = 'cancelado'
+                item.producto.cantidad_disponible += item.cantidad
+                item.producto.save()
+                item.save()
+        return HttpResponse('Pago rechazado, pedido cancelado')
+
+    return HttpResponse('Evento procesado')
+
 # 8. VISTA DE MIS PEDIDOS / PEDIDOS RECIBIDOS
 def mis_pedidos_view(request):
     if not request.user.is_authenticated:
@@ -309,6 +450,9 @@ def mis_pedidos_view(request):
         orden['productos_resumen'] = ', '.join(productos)
         orden['primer_item'] = orden['items'][0]
         orden['numero_items'] = len(orden['items'])
+        # Estado de pago: obtener del primer item (todos deben ser iguales)
+        orden['estado_pago'] = orden['items'][0].estado_pago if orden['items'] else 'pendiente'
+        orden['total_pagar'] = calcular_total_pedido(orden['items'])
 
     ordenes = list(grupos.values())
     ordenes.sort(key=lambda o: o['fecha_pedido'], reverse=True)
