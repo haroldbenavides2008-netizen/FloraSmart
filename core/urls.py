@@ -14,44 +14,57 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+"""
+URL configuration for core project.
+"""
+
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 from usuarios import views
 
 urlpatterns = [
+    # Página principal
+    path('', RedirectView.as_view(url='/home/', permanent=False)),
+
+    # Administración
     path('admin/', admin.site.urls),
-    
-    # Rutas de Autenticación
-    path('', views.login_view, name='login'),
+
+    # Autenticación
+    path('login/', views.login_view, name='login'),
     path('registro/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
-    
-    # Rutas de la Aplicación (Dashboard)
+
+    # Aplicación principal
     path('home/', views.home_view, name='home'),
     path('agregar-producto/', views.agregar_producto, name='agregar_producto'),
     path('configuracion/', views.configuracion_view, name='configuracion'),
     path('perfil/', views.perfil_view, name='perfil'),
-    
-    # Rutas del Mercado y Pedidos
+
+    # Mercado y pedidos
     path('mercado/', views.mercado_view, name='mercado'),
     path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
     path('realizar-pedido-carrito/', views.realizar_pedido_carrito, name='realizar_pedido_carrito'),
     path('pedidos/<int:pedido_id>/pagar/', views.pagar_pedido, name='pagar_pedido'),
+
+    # Wompi
     path('pagos/wompi/retorno/', views.wompi_retorno, name='wompi_retorno'),
     path('pagos/wompi/webhook/', views.wompi_webhook, name='wompi_webhook'),
-    
+
+    # Pedidos
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
     path('notificaciones/', views.notificaciones_view, name='notificaciones'),
     path('cancelar-pedido/<int:pedido_id>/', views.cancelar_pedido, name='cancelar_pedido'),
     path('cambiar-estado-pedido/<int:pedido_id>/', views.cambiar_estado_pedido, name='cambiar_estado_pedido'),
     path('editar-pedido/<int:pedido_id>/', views.editar_pedido, name='editar_pedido'),
-    
+
+    # Chat
     path('chats/', views.lista_chats_view, name='lista_chats'),
     path('chat/<int:receptor_id>/', views.chat_view, name='chat'),
 ]
 
-# Configuración para servir archivos multimedia (Fotos de las flores)
+# Archivos multimedia
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
