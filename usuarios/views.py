@@ -273,8 +273,14 @@ def calcular_total_pedido(pedidos):
 
 
 def obtener_aceptance_token(public_key):
-    url = f"https://sandbox.wompi.co/v1/merchants/{public_key}/acceptance_token"
+    url = f"{settings.WOMPI_SANDBOX_URL}/v1/merchants/{public_key}/acceptance_token"
     response = requests.get(url, timeout=10)
+    if response.status_code == 404:
+        raise ValueError('La cuenta Wompi sandbox aún no está activada o la llave pública no es válida. Verifica en el dashboard de Wompi que tu comercio esté aprobado.')
+    if response.status_code == 401:
+        raise ValueError('Autenticación inválida de Wompi. Revisa la llave pública y la llave privada en tu .env.')
+    if response.status_code == 403:
+        raise ValueError('Acceso denegado a Wompi. Tu cuenta sandbox puede estar en revisión o no tener permisos suficientes.')
     response.raise_for_status()
     return response.json().get('data', {}).get('presigned_acceptance_token')
 

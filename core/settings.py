@@ -6,10 +6,30 @@ from pathlib import Path
 # 1. Rutas base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 2. Seguridad (Mantén estas claves seguras en producción)
-SECRET_KEY = 'django-insecure-01m1b+8n@y3119_e@qxi2+eryn3#gb9v^@a7%^(w3*6p3#=uct'
-DEBUG = True
-ALLOWED_HOSTS = []
+# Carga de variables de entorno desde .env cuando exista
+dotenv_path = BASE_DIR / '.env'
+if dotenv_path.exists():
+    with open(dotenv_path, encoding='utf-8') as dotenv_file:
+        for line in dotenv_file:
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
+# 2. Seguridad
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-01m1b+8n@y3119_e@qxi2+eryn3#gb9v^@a7%^(w3*6p3#=uct'
+)
+
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = [
+    '.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 # 3. Aplicaciones Instaladas
 INSTALLED_APPS = [
@@ -19,17 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Herramientas para FloraSmart
     'rest_framework',
     'corsheaders',
-    'usuarios', # Tu aplicación de gestión de usuarios
+    'usuarios',
 ]
 
 # 4. Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # Recomendado añadirlo aquí
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -40,11 +61,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
-# 5. Configuración de Plantillas (HTML)
+# 5. Configuración de Plantillas
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # Ruta corregida para buscar tus HTML
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# 6. Base de Datos Local (SQLite)
+# 6. Base de Datos
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -67,37 +88,85 @@ DATABASES = {
     }
 }
 
-# 7. Internacionalización
-LANGUAGE_CODE = 'es-co' # Cambiado a español de Colombia
+# 7. Validadores de Contraseña
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# 8. Internacionalización
+LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
+
 USE_I18N = True
 USE_TZ = True
 
-# 8. Archivos Estáticos (CSS, JS)
+# 9. Archivos Estáticos
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles' # Para producción
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 STATICFILES_DIRS = [
-    BASE_DIR / 'static', # Carpeta principal de estáticos en la raíz
+    BASE_DIR / 'static',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# 9. Archivos Multimedia (Fotos de las flores y fincas)
+# 10. Archivos Multimedia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# 10. Configuración de CORS (Para desarrollo)
+# 11. Configuración de CORS
 CORS_ALLOW_ALL_ORIGINS = True
+
+# 12. Usuario Personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-# 11. Configuración de Wompi para pagos
-WOMPI_PUBLIC_KEY = os.getenv('WOMPI_PUBLIC_KEY', 'your_public_key_here')
-WOMPI_PRIVATE_KEY = os.getenv('WOMPI_PRIVATE_KEY', 'your_private_key_here')
-WOMPI_REDIRECT_URL = os.getenv('WOMPI_REDIRECT_URL', 'http://localhost:8000/pagos/wompi/retorno/')
-WOMPI_WEBHOOK_URL = os.getenv('WOMPI_WEBHOOK_URL', 'http://localhost:8000/pagos/wompi/webhook/')
+# 13. Configuración de Wompi
+WOMPI_PUBLIC_KEY = os.getenv(
+    'WOMPI_PUBLIC_KEY',
+    'your_public_key_here'
+)
+
+WOMPI_PRIVATE_KEY = os.getenv(
+    'WOMPI_PRIVATE_KEY',
+    'your_private_key_here'
+)
+
+WOMPI_REDIRECT_URL = os.getenv(
+    'WOMPI_REDIRECT_URL',
+    'http://localhost:8000/pagos/wompi/retorno/'
+)
+
+WOMPI_WEBHOOK_URL = os.getenv(
+    'WOMPI_WEBHOOK_URL',
+    'http://localhost:8000/pagos/wompi/webhook/'
+)
+
 WOMPI_SANDBOX_URL = 'https://sandbox.wompi.co'
 
-# 12. Configuración de Claves Primarias por Defecto
+# 14. Firebase (solo si existe configuración)
+firebase_cred_path = os.getenv('FIREBASE_CREDENTIALS')
+
+if firebase_cred_path and os.path.exists(firebase_cred_path):
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(firebase_cred_path)
+        firebase_admin.initialize_app(cred)
+
+# 15. Campo automático por defecto
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
