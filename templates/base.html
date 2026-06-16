@@ -80,12 +80,10 @@
             <div class="sidebar-user-profile">
                 <a href="{% url 'perfil' %}" class="profile-link">
                     <div class="profile-avatar">
-                        {% if user.foto_perfil %}
+                        {% if user.foto_perfil and user.foto_perfil.name != 'perfiles/default_profile.png' %}
                             <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="profile-image">
                         {% else %}
-                            <div class="profile-image-placeholder">
-                                <i class="fas fa-user"></i>
-                            </div>
+                            <img src="{% static 'images/default_profile.svg' %}" alt="Foto de perfil predeterminada" class="profile-image">
                         {% endif %}
                     </div>
                     <div class="profile-info">

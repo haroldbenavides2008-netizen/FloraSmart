@@ -394,10 +394,10 @@
     <div class="profile-top-card">
 
         <div class="profile-avatar-large">
-            {% if usuario.foto_perfil %}
+            {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
                 <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
             {% else %}
-                <i class="fas fa-user"></i>
+                <img src="{% static 'images/default_profile.svg' %}" alt="Foto de perfil predeterminada">
             {% endif %}
         </div>
 
@@ -452,10 +452,10 @@
             <div class="form-group image-upload-wrapper">
                 <label for="id_foto_perfil">Foto de Perfil</label>
                 <div class="image-preview">
-                    {% if usuario.foto_perfil %}
+                    {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
                         <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
                     {% else %}
-                        <i class="fas fa-image"></i>
+                        <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
                     {% endif %}
                 </div>
                 <input 
@@ -628,10 +628,10 @@
 
                     <div class="image-preview">
 
-                        {% if usuario.foto_perfil %}
+                        {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
                             <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
                         {% else %}
-                            <i class="fas fa-image"></i>
+                            <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
                         {% endif %}
 
                     </div>
@@ -658,10 +658,10 @@
             <div class="form-group image-upload-wrapper">
                 <label for="id_foto_perfil">Foto de Perfil</label>
                 <div class="image-preview">
-                    {% if usuario.foto_perfil %}
+                    {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
                         <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
                     {% else %}
-                        <i class="fas fa-image"></i>
+                        <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
                     {% endif %}
                 </div>
                 <input 
