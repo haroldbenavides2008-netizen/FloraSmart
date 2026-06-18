@@ -446,8 +446,7 @@
         {% csrf_token %}
         
         <h3>Información Personal</h3>
-        
-        <!-- Foto de Perfil -->
+
         <div class="form-row full">
             <div class="form-group image-upload-wrapper">
                 <label for="id_foto_perfil">Foto de Perfil</label>
@@ -458,10 +457,10 @@
                         <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
                     {% endif %}
                 </div>
-                <input 
-                    type="file" 
-                    id="id_foto_perfil" 
-                    name="foto_perfil" 
+                <input
+                    type="file"
+                    id="id_foto_perfil"
+                    name="foto_perfil"
                     accept="image/*"
                     class="form-control"
                     onchange="previewImage(event)"
@@ -470,285 +469,60 @@
             </div>
         </div>
 
-        <div class="profile-top-actions">
-            <a href="#profile-form">
-                <i class="fas fa-edit"></i>
-                {% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}
+        <div class="form-row">
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}First Name{% else %}Nombre{% endif %}</label>
+                {{ form.first_name }}
+            </div>
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Last Name{% else %}Apellido{% endif %}</label>
+                {{ form.last_name }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
+                {{ form.telefono }}
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Company / Farm{% else %}Empresa / Finca{% endif %}</label>
+                {{ form.nombre_empresa_o_finca }}
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
+                {{ form.ubicacion }}
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label>{% if request.session.language == 'en' %}Bio{% else %}Bio{% endif %}</label>
+                {{ form.bio }}
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn-primary-custom">
+                <i class="fas fa-save"></i>
+                {% if request.session.language == 'en' %}Save changes{% else %}Guardar cambios{% endif %}
+            </button>
+            <a href="{% url 'home' %}" class="btn-secondary-custom">
+                <i class="fas fa-arrow-left"></i>
+                {% if request.session.language == 'en' %}Back{% else %}Volver{% endif %}
             </a>
         </div>
-
-    </div>
-
-    <div class="profile-grid">
-
-        <div class="profile-card">
-
-            <h3>{% if request.session.language == 'en' %}Personal Information{% else %}Información Personal{% endif %}</h3>
-
-            <div class="profile-row">
-                <label>{% if request.session.language == 'en' %}Name{% else %}Nombre{% endif %}</label>
-                <span>{{ usuario.get_full_name|default:usuario.username }}</span>
-            </div>
-
-            <div class="profile-row">
-                <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
-                <span>{{ usuario.email }}</span>
-            </div>
-
-            <div class="profile-row">
-                <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
-                <span>{{ usuario.telefono|default:"{% if request.session.language == 'en' %}Not registered{% else %}No registrado{% endif %}" }}</span>
-            </div>
-
-            <div class="profile-row">
-                <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
-                <span>{{ usuario.ubicacion|default:"{% if request.session.language == 'en' %}Not specified{% else %}No especificada{% endif %}" }}</span>
-            </div>
-
-            <div class="profile-row">
-                <label>Tipo</label>
-                <span class="profile-badge">
-                    {{ usuario.get_rol_display }}
-                </span>
-            </div>
-
-        </div>
-
-        <div class="orders-card">
-
-            {% if usuario.rol == 'comprador_b2c' %}
-                <h3>{% if request.session.language == 'en' %}Order history{% else %}Historial de pedidos{% endif %}</h3>
-            {% else %}
-                <h3>{% if request.session.language == 'en' %}Sent order history{% else %}Historial de pedidos enviados{% endif %}</h3>
-            {% endif %}
-
-            {% if pedidos_recientes %}
-
-                {% for pedido in pedidos_recientes %}
-
-                <div class="order-item">
-
-                    <div class="order-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-
-                    <div class="order-meta">
-                        <strong>Pedido #{{ pedido.id }}</strong>
-                        <small>{{ pedido.fecha_pedido|date:"j \\d\\e F, Y" }}</small>
-                    </div>
-
-                    <div class="order-amount">
-
-                        {% if pedido.estado == 'entregado' %}
-                            <span class="profile-badge">Entregado</span>
-
-                        {% elif pedido.estado == 'en_camino' %}
-                            <span class="profile-badge">En proceso</span>
-
-                        {% else %}
-                            <span class="profile-badge">
-                                {{ pedido.get_estado_display }}
-                            </span>
-                        {% endif %}
-
-                        <div style="margin-top:8px;">
-                            ${{ pedido.total_pagar|floatformat:2 }}
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
-            {% else %}
-
-                <p>{% if request.session.language == 'en' %}You have no orders registered.{% else %}No tienes pedidos registrados.{% endif %}</p>
-
-            {% endif %}
-
-            <div class="orders-footer">
-                {% if pedidos_restantes %}
-                <button type="button" id="toggle-orders-btn" class="orders-link toggle-more-orders">
-                    {% if request.session.language == 'en' %}View all my orders{% else %}Ver todos mis pedidos{% endif %}
-                    <i class="fas fa-arrow-down"></i>
-                </button>
-                {% endif %}
-            </div>
-
-            {% if pedidos_restantes %}
-            <div id="more-orders" class="more-orders-list" style="display:none;">
-                {% for pedido in pedidos_restantes %}
-                <div class="order-item">
-                    <div class="order-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="order-meta">
-                        <strong>Pedido #{{ pedido.id }}</strong>
-                        <small>{{ pedido.fecha_pedido|date:"j \d\e F, Y" }}</small>
-                    </div>
-                    <div class="order-amount">
-                        {% if pedido.estado == 'entregado' %}
-                            <span class="profile-badge">Entregado</span>
-                        {% elif pedido.estado == 'en_camino' %}
-                            <span class="profile-badge">En proceso</span>
-                        {% else %}
-                            <span class="profile-badge">{{ pedido.get_estado_display }}</span>
-                        {% endif %}
-                        <div style="margin-top:8px;">
-                            ${{ pedido.total_pagar|floatformat:2 }}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-    <div class="form-section" id="profile-form">
-
-        <h3>{% if request.session.language == 'en' %}Edit Profile{% else %}Editar Perfil{% endif %}</h3>
-
-        <div class="info-box">
-            <i class="fas fa-info-circle"></i>
-            {% if request.session.language == 'en' %}Changes will be saved when you click "Save changes".{% else %}Los cambios se guardarán al presionar "Guardar cambios".{% endif %}
-        </div>
-
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <div class="form-row full">
-
-                <div class="form-group">
-
-                    <label>{% if request.session.language == 'en' %}Profile Photo{% else %}Foto de Perfil{% endif %}</label>
-
-                    <div class="image-preview">
-
-                        {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
-                            <img src="{{ usuario.foto_perfil.url }}" id="preview-image">
-                        {% else %}
-                            <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
-                        {% endif %}
-
-                    </div>
-
-                    <input
-                        type="file"
-                        id="id_foto_perfil"
-                        name="foto_perfil"
-                        accept="image/*"
-                        onchange="previewImage(event)"
-                    >
-
-                </div>
-
-            </div>
-
-    <form method="POST" enctype="multipart/form-data" class="form-section" id="perfil">
-        {% csrf_token %}
-        
-        <h3>Información Personal</h3>
-        
-        <!-- Foto de Perfil -->
-        <div class="form-row full">
-            <div class="form-group image-upload-wrapper">
-                <label for="id_foto_perfil">Foto de Perfil</label>
-                <div class="image-preview">
-                    {% if usuario.foto_perfil and usuario.foto_perfil.name != 'perfiles/default_profile.png' %}
-                        <img src="{{ usuario.foto_perfil.url }}" id="preview-image" alt="Vista previa">
-                    {% else %}
-                        <img src="{% static 'images/default_profile.svg' %}" id="preview-image" alt="Vista previa">
-                    {% endif %}
-                </div>
-                <input 
-                    type="file" 
-                    id="id_foto_perfil" 
-                    name="foto_perfil" 
-                    accept="image/*"
-                    class="form-control"
-                    onchange="previewImage(event)"
-                >
-                <small class="text-muted" style="margin-top: 8px;">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
-            </div>
-        </div>
-            <div class="form-row">
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}First Name{% else %}Nombre{% endif %}</label>
-                    {{ form.first_name }}
-                </div>
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Last Name{% else %}Apellido{% endif %}</label>
-                    {{ form.last_name }}
-                </div>
-
-            </div>
-
-            <div class="form-row">
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
-                    {{ form.email }}
-                </div>
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
-                    {{ form.telefono }}
-                </div>
-
-            </div>
-
-            <div class="form-row full">
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Company / Farm{% else %}Empresa / Finca{% endif %}</label>
-                    {{ form.nombre_empresa_o_finca }}
-                </div>
-
-            </div>
-
-            <div class="form-row full">
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
-                    {{ form.ubicacion }}
-                </div>
-
-            </div>
-
-            <div class="form-row full">
-
-                <div class="form-group">
-                    <label>{% if request.session.language == 'en' %}Bio{% else %}Bio{% endif %}</label>
-                    {{ form.bio }}
-                </div>
-
-            </div>
-
-            <div class="button-group">
-
-                <button type="submit" class="btn-primary-custom">
-                    <i class="fas fa-save"></i>
-                    {% if request.session.language == 'en' %}Save changes{% else %}Guardar cambios{% endif %}
-                </button>
-
-                <a href="{% url 'home' %}" class="btn-secondary-custom">
-                    <i class="fas fa-arrow-left"></i>
-                    {% if request.session.language == 'en' %}Back{% else %}Volver{% endif %}
-                </a>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
+    </form>
 
 <script>
 function previewImage(event) {

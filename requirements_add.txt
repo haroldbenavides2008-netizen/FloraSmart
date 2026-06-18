@@ -1,0 +1,6 @@
+# Packages needed for S3 file storage
+django-storages[boto3]
+boto3
+
+# Install with:
+# pip install -r requirements_add.txt
