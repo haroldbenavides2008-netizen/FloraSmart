@@ -130,10 +130,11 @@ STATICFILES_FINDERS = [
 ]
 
 # 10. Archivos Multimedia
+# 10. Archivos Multimedia
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Configuración de Cloudinary para almacenamiento de medios
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
@@ -145,17 +146,30 @@ USE_CLOUDINARY = all(CLOUDINARY_STORAGE.values())
 if USE_CLOUDINARY:
     import cloudinary
 
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/image/upload/"
     cloudinary.config(
         cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
         api_key=CLOUDINARY_STORAGE['API_KEY'],
         api_secret=CLOUDINARY_STORAGE['API_SECRET'],
     )
-else:
-    # En local o cuando faltan credenciales de Cloudinary, usamos almacenamiento local
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 # 11. Configuración de CORS
 CORS_ALLOW_ALL_ORIGINS = True
 
