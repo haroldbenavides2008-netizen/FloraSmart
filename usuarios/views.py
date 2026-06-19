@@ -59,20 +59,32 @@ def login_view(request):
     if request.method == 'POST':
         email_ingresado = request.POST.get('email')
         password_ingresada = request.POST.get('password')
-        
+
+        print("EMAIL:", email_ingresado)
+
         try:
-            # Buscamos por email para obtener el username de Django
             usuario_obj = Usuario.objects.get(email=email_ingresado)
-            user = authenticate(request, username=usuario_obj.username, password=password_ingresada)
-            
+
+            print("USUARIO:", usuario_obj.username)
+
+            user = authenticate(
+                request,
+                username=usuario_obj.username,
+                password=password_ingresada
+            )
+
+            print("AUTH:", user)
+
             if user is not None:
                 login(request, user)
                 return redirect('home')
-            else:
-                messages.error(request, "Contraseña incorrecta")
+
+            messages.error(request, "Contraseña incorrecta")
+
         except Usuario.DoesNotExist:
+            print("USUARIO NO EXISTE")
             messages.error(request, "El correo no está registrado")
-            
+
     return render(request, 'login.html')
 
 # 3. VISTA DE HOME
