@@ -40,6 +40,7 @@ urlpatterns = [
     # Aplicación principal
     path('home/', views.home_view, name='home'),
     path('agregar-producto/', views.agregar_producto, name='agregar_producto'),
+    path('mis-productos/', views.mis_productos_view, name='mis_productos'),
     path('configuracion/', views.configuracion_view, name='configuracion'),
     path('perfil/', views.perfil_view, name='perfil'),
 

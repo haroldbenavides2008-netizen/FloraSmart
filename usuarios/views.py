@@ -81,11 +81,19 @@ def home_view(request):
         return redirect('login')
     
     contexto = {}
-    if request.user.rol == 'floricultor':
-        contexto['mis_productos'] = Producto.objects.filter(floricultor=request.user).order_by('-fecha_publicacion')
-    else:
+    if request.user.rol != 'floricultor':
         contexto['productos_mercado'] = Producto.objects.all().order_by('-fecha_publicacion')[:4]
     return render(request, 'home.html', contexto)
+
+# 3.1. VISTA 'MIS PRODUCTOS' (PÁGINA SEPARADA PARA FLORICULTORES)
+@login_required
+def mis_productos_view(request):
+    if request.user.rol != 'floricultor':
+        messages.warning(request, "Solo los floricultores pueden ver esta sección.")
+        return redirect('home')
+
+    mis_productos = Producto.objects.filter(floricultor=request.user).order_by('-fecha_publicacion')
+    return render(request, 'mis_productos.html', {'mis_productos': mis_productos})
 
 # 4. AGREGAR PRODUCTO (GESTIÓN FLORICULTOR)
 def agregar_producto(request):
