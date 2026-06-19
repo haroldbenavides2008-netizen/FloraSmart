@@ -414,10 +414,14 @@
                     <i class="fas fa-calendar-alt"></i>
                     {% if request.session.language == 'en' %}Member since{% else %}Miembro desde{% endif %} {{ usuario.date_joined|date:"F Y" }}
                 </span>
-    <div class="profile-top-actions">
-        <a href="#perfil" class="action-pill active">Perfil</a>
-        <a href="#seguridad" class="action-pill">Seguridad</a>
-        <a href="#preferencias" class="action-pill">Preferencias</a>
+            </div>
+        </div>
+
+        <div class="profile-top-actions">
+            <a href="#perfil" class="action-pill active">Perfil</a>
+            <a href="#pedidos" class="action-pill">{% if request.session.language == 'en' %}Orders{% else %}Pedidos{% endif %}</a>
+            <a href="#configuracion" class="action-pill">{% if request.session.language == 'en' %}Settings{% else %}Ajustes{% endif %}</a>
+        </div>
     </div>
 
     <div class="info-box">
@@ -428,17 +432,102 @@
     <div class="config-grid">
         <div class="config-card config-card-primary">
             <div>
-                <h3>Tu cuenta</h3>
-                <p>Visualiza y actualiza tus datos de contacto, nombre y dirección.</p>
+                <h3>{% if request.session.language == 'en' %}Your account{% else %}Tu cuenta{% endif %}</h3>
+                <p>{% if request.session.language == 'en' %}Visualize and update your contact data, name and address.{% else %}Visualiza y actualiza tus datos de contacto, nombre y dirección.{% endif %}</p>
             </div>
             <div class="config-icon"><i class="fas fa-user-cog"></i></div>
         </div>
         <div class="config-card config-card-secondary">
             <div>
-                <h3>Preferencias</h3>
-                <p>Personaliza tu experiencia y mantente al día con tus pedidos.</p>
+                <h3>{% if request.session.language == 'en' %}Preferences{% else %}Preferencias{% endif %}</h3>
+                <p>{% if request.session.language == 'en' %}Customize your experience and stay on top of your orders.{% else %}Personaliza tu experiencia y mantente al día con tus pedidos.{% endif %}</p>
             </div>
             <div class="config-icon"><i class="fas fa-sliders-h"></i></div>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-card">
+            <h3>{% if request.session.language == 'en' %}Personal information{% else %}Información Personal{% endif %}</h3>
+
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Name{% else %}Nombre{% endif %}</label>
+                <span>{{ usuario.first_name }} {{ usuario.last_name }}</span>
+            </div>
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Email{% else %}Correo{% endif %}</label>
+                <span>{{ usuario.email }}</span>
+            </div>
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Phone{% else %}Teléfono{% endif %}</label>
+                <span>{{ usuario.telefono|default:'—' }}</span>
+            </div>
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Location{% else %}Ubicación{% endif %}</label>
+                <span>{{ usuario.ubicacion|default:'—' }}</span>
+            </div>
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Role{% else %}Tipo{% endif %}</label>
+                <span>{{ usuario.get_rol_display }}</span>
+            </div>
+            {% if es_floricultor %}
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Products published{% else %}Productos publicados{% endif %}</label>
+                <span>{{ productos_publicados }}</span>
+            </div>
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Total sales{% else %}Ventas totales{% endif %}</label>
+                <span>${{ total_ventas|floatformat:2 }}</span>
+            </div>
+            {% else %}
+            <div class="profile-row">
+                <label>{% if request.session.language == 'en' %}Total orders{% else %}Total pedidos{% endif %}</label>
+                <span>{{ total_pedidos }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="orders-card" id="pedidos">
+            <h3>{% if es_floricultor %}{% if request.session.language == 'en' %}Received orders{% else %}Pedidos recibidos{% endif %}{% else %}{% if request.session.language == 'en' %}Order history{% else %}Historial de pedidos{% endif %}{% endif %}</h3>
+            {% if pedidos_recientes %}
+                {% for pedido in pedidos_recientes %}
+                    <div class="order-item">
+                        <div class="order-icon"><i class="fas fa-box"></i></div>
+                        <div class="order-meta">
+                            <strong>{% if es_floricultor %}Pedido #{{ pedido.id }}{% else %}{{ pedido.producto.nombre_flor }}{% endif %}</strong>
+                            <small>{% if request.session.language == 'en' %}Date:{% else %}Fecha:{% endif %} {{ pedido.fecha_pedido|date:"d M Y" }}</small>
+                            <small>{% if request.session.language == 'en' %}Status:{% else %}Estado:{% endif %} {{ pedido.get_estado_display }}</small>
+                        </div>
+                        <div class="order-amount">
+                            ${{ pedido.total_pagar|floatformat:2 }}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if pedidos_restantes %}
+                    <div class="orders-footer">
+                        <button type="button" id="toggle-orders-btn" class="btn-secondary-custom">
+                            {% if request.session.language == 'en' %}View all orders{% else %}Ver todos los pedidos{% endif %} <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                    <div id="more-orders" style="display:none; margin-top: 18px;">
+                        {% for pedido in pedidos_restantes %}
+                            <div class="order-item">
+                                <div class="order-icon"><i class="fas fa-box"></i></div>
+                                <div class="order-meta">
+                                    <strong>{% if es_floricultor %}Pedido #{{ pedido.id }}{% else %}{{ pedido.producto.nombre_flor }}{% endif %}</strong>
+                                    <small>{% if request.session.language == 'en' %}Date:{% else %}Fecha:{% endif %} {{ pedido.fecha_pedido|date:"d M Y" }}</small>
+                                    <small>{% if request.session.language == 'en' %}Status:{% else %}Estado:{% endif %} {{ pedido.get_estado_display }}</small>
+                                </div>
+                                <div class="order-amount">
+                                    ${{ pedido.total_pagar|floatformat:2 }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <p>{% if request.session.language == 'en' %}No orders yet. Place an order or receive your first request.{% else %}Aún no hay pedidos. Realiza una compra o recibe tu primer pedido.{% endif %}</p>
+            {% endif %}
         </div>
     </div>
 

@@ -2,6 +2,7 @@ import json
 import uuid
 import requests
 
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -742,9 +743,14 @@ def perfil_view(request):
     
     if usuario.rol == 'floricultor':
         pedidos_todos = Pedido.objects.filter(producto__floricultor=usuario).order_by('-fecha_pedido')
+        total_ventas = sum((pedido.total_pagar() for pedido in pedidos_todos), Decimal('0.00'))
+        productos_publicados = usuario.mis_productos.count()
     else:
         pedidos_todos = usuario.mis_pedidos_realizados.order_by('-fecha_pedido')
+        total_ventas = None
+        productos_publicados = None
 
+    total_pedidos = pedidos_todos.count()
     pedidos_recientes = pedidos_todos[:3]
     pedidos_restantes = pedidos_todos[3:]
     contexto = {
@@ -752,6 +758,10 @@ def perfil_view(request):
         'usuario': usuario,
         'pedidos_recientes': pedidos_recientes,
         'pedidos_restantes': pedidos_restantes,
+        'total_pedidos': total_pedidos,
+        'total_ventas': total_ventas,
+        'productos_publicados': productos_publicados,
+        'es_floricultor': usuario.rol == 'floricultor',
     }
     
     return render(request, 'perfil.html', contexto)
