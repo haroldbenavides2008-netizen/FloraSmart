@@ -40,10 +40,12 @@
                     <span>{% if request.session.language == 'en' %}Home{% else %}Home{% endif %}</span>
                 </a>
                 
+                {% if not user.is_authenticated or user.rol != 'floricultor' %}
                 <a href="{% url 'mercado' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mercado' %}active{% endif %}">
                     <i class="fas fa-store"></i> 
                     <span>{% if request.session.language == 'en' %}Market{% else %}Mercado{% endif %}</span>
                 </a>
+                {% endif %}
                 <!-- CÓDIGO DE PEDIDOS -->
                 <a href="{% url 'mis_pedidos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'mis_pedidos' %}active{% endif %}">
                     <i class="fas fa-shopping-basket"></i> 

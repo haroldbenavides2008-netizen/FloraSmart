@@ -116,6 +116,10 @@ def logout_view(request):
 def mercado_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
+    # Los floricultores no deben ver el mercado
+    if hasattr(request.user, 'rol') and request.user.rol == 'floricultor':
+        messages.info(request, "Acceso al mercado no disponible para floricultores.")
+        return redirect('mis_pedidos')
         
     productos = Producto.objects.all().order_by('-fecha_publicacion')
     
