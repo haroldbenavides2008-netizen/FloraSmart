@@ -27,6 +27,12 @@ def register_view(request):
         password = request.POST.get('password')
         rol = request.POST.get('rol')
         empresa = request.POST.get('empresa')
+        acepta_terminos = request.POST.get('acepta_terminos')
+
+        if not acepta_terminos:
+            return render(request, 'register.html', {
+                'error': 'Debes aceptar los términos y condiciones para continuar.'
+            })
 
         try:
             # Creamos el usuario directamente en Django

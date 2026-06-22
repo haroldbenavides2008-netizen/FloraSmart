@@ -47,15 +47,43 @@
                 <input type="text" name="empresa" placeholder="{% if request.session.language == 'en' %}Name of your Farm or Company (Optional){% else %}Nombre de tu Finca o Empresa (Opcional){% endif %}">
             </div>
 
-          
+            <div class="terms-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="acepta_terminos" required>
+                    <span>{% if request.session.language == 'en' %}I accept the{% else %}Acepto{% endif %} <a href="#" class="terms-link" id="open-terms">{% if request.session.language == 'en' %}terms and conditions{% else %}términos y condiciones{% endif %}</a></span>
+                </label>
+            </div>
+
              <button type="submit" class="login-btn" id="btn-registro">
                 {% if request.session.language == 'en' %}Register now{% else %}Registrarse ahora{% endif %}
             </button>
+
+            <div class="terms-modal" id="terms-modal" aria-hidden="true">
+                <div class="terms-modal-content">
+                    <button type="button" class="terms-modal-close" id="close-terms">×</button>
+                    <h3>{% if request.session.language == 'en' %}Terms and Conditions{% else %}Términos y Condiciones{% endif %}</h3>
+                    <p>{% if request.session.language == 'en' %}By creating an account you agree that FloraSmart may use your personal and confidential information to provide the service, process orders, and support your account. Your data will be treated securely and according to our privacy rules.{% else %}Al crear una cuenta aceptas que FloraSmart puede usar tu información personal y confidencial para brindar el servicio, procesar pedidos y apoyar tu cuenta. Tus datos serán tratados con seguridad y según nuestras políticas de privacidad.{% endif %}</p>
+                    <p class="terms-note">{% if request.session.language == 'en' %}We will not share your confidential information without your consent.{% else %}No compartiremos tu información confidencial sin tu consentimiento.{% endif %}</p>
+                </div>
+            </div>
+
             <script>
-            document.querySelector('form').onsubmit = function() {
-                console.log("Formulario enviado a FloraSmart");
-                };
-                </script>
+                document.getElementById('open-terms').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    document.getElementById('terms-modal').style.display = 'flex';
+                    document.getElementById('terms-modal').setAttribute('aria-hidden', 'false');
+                });
+                document.getElementById('close-terms').addEventListener('click', function() {
+                    document.getElementById('terms-modal').style.display = 'none';
+                    document.getElementById('terms-modal').setAttribute('aria-hidden', 'true');
+                });
+                document.getElementById('terms-modal').addEventListener('click', function(event) {
+                    if (event.target === this) {
+                        this.style.display = 'none';
+                        this.setAttribute('aria-hidden', 'true');
+                    }
+                });
+            </script>
         
         <p class="signup-text">{% if request.session.language == 'en' %}Already have an account? <a href="{% url 'login' %}">Sign in</a>{% else %}¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>{% endif %}</p>
     </div>
