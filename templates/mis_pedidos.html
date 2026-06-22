@@ -93,13 +93,13 @@
 
                                 {% if request.user.rol != 'floricultor' and orden.estado == 'pendiente' %}
                                     {% if orden.estado_pago != 'pagado' %}
-                                        <a href="{% url 'pagar_pedido' orden.representante_id %}" 
+                                        <a href="{% url 'pagar_pedido' orden.id %}" 
                                            class="btn btn-sm btn-outline-success" 
                                            title="{% if request.session.language == 'en' %}Pay with Mercado Pago{% else %}Pagar con Mercado Pago{% endif %}">
                                             💳 {% if request.session.language == 'en' %}Pay{% else %}Pagar{% endif %}
                                         </a>
                                     {% endif %}
-                                    <a href="{% url 'editar_pedido' orden.representante_id %}" 
+                                    <a href="{% url 'editar_pedido' orden.id %}" 
                                        class="btn btn-sm btn-outline-primary" 
                                        title="{% if request.session.language == 'en' %}Edit order{% else %}Editar pedido{% endif %}">
                                         ✏️ {% if request.session.language == 'en' %}Edit{% else %}Editar{% endif %}
