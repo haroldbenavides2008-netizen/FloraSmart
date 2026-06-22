@@ -184,28 +184,28 @@ CORS_ALLOW_ALL_ORIGINS = True
 # 12. Usuario Personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-# 13. Configuración de Wompi
-WOMPI_PUBLIC_KEY = os.getenv(
-    'WOMPI_PUBLIC_KEY',
+# 13. Configuración de Mercado Pago
+MERCADOPAGO_ACCESS_TOKEN = os.getenv(
+    'MERCADOPAGO_ACCESS_TOKEN',
+    'your_access_token_here'
+)
+
+MERCADOPAGO_PUBLIC_KEY = os.getenv(
+    'MERCADOPAGO_PUBLIC_KEY',
     'your_public_key_here'
 )
 
-WOMPI_PRIVATE_KEY = os.getenv(
-    'WOMPI_PRIVATE_KEY',
-    'your_private_key_here'
+MERCADOPAGO_REDIRECT_URL = os.getenv(
+    'MERCADOPAGO_REDIRECT_URL',
+    'http://localhost:8000/mis-pedidos/'
 )
 
-WOMPI_REDIRECT_URL = os.getenv(
-    'WOMPI_REDIRECT_URL',
-    'http://localhost:8000/pagos/wompi/retorno/'
+MERCADOPAGO_WEBHOOK_URL = os.getenv(
+    'MERCADOPAGO_WEBHOOK_URL',
+    'http://localhost:8000/pagos/mercadopago/webhook/'
 )
 
-WOMPI_WEBHOOK_URL = os.getenv(
-    'WOMPI_WEBHOOK_URL',
-    'http://localhost:8000/pagos/wompi/webhook/'
-)
-
-WOMPI_SANDBOX_URL = 'https://sandbox.wompi.co'
+MERCADOPAGO_API_URL = 'https://api.mercadopago.com'
 
 # 14. Firebase (solo si existe configuración)
 firebase_cred_path = os.getenv('FIREBASE_CREDENTIALS')

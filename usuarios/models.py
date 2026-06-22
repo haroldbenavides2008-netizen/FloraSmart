@@ -70,8 +70,18 @@ class Pedido(models.Model):
         ('cancelado', 'Cancelado'),
     )
     estado_pago = models.CharField(max_length=20, choices=PAGO_ESTADOS, default='pendiente')
-    wompi_transaction_id = models.CharField(max_length=200, blank=True, null=True)
-    wompi_reference = models.CharField(max_length=200, blank=True, null=True)
+    pago_transaction_id = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        db_column='wompi_transaction_id'
+    )
+    pago_reference = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        db_column='wompi_reference'
+    )
 
     def total_pagar(self):
         return self.cantidad * self.producto.precio_por_tallo

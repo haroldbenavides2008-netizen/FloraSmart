@@ -50,9 +50,8 @@ urlpatterns = [
     path('realizar-pedido-carrito/', views.realizar_pedido_carrito, name='realizar_pedido_carrito'),
     path('pedidos/<int:pedido_id>/pagar/', views.pagar_pedido, name='pagar_pedido'),
 
-    # Wompi
-    path('pagos/wompi/retorno/', views.wompi_retorno, name='wompi_retorno'),
-    path('pagos/wompi/webhook/', views.wompi_webhook, name='wompi_webhook'),
+    # Mercado Pago Webhook
+    path('pagos/mercadopago/webhook/', views.mercadopago_webhook, name='mercadopago_webhook'),
 
     # Pedidos
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),

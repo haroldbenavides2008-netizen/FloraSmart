@@ -11,6 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Importación de modelos y formularios
 from .models import Usuario, Producto, Pedido, MensajeChat
@@ -297,23 +298,10 @@ def realizar_pedido_carrito(request):
     messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad_total} tallo(s) de {mensaje_productos}.")
     return redirect('mis_pedidos')
 
-# Helpers para pagos Wompi
+# Helpers para pagos Mercado Pago
 
 def calcular_total_pedido(pedidos):
     return sum(item.cantidad * item.producto.precio_por_tallo for item in pedidos)
-
-
-def obtener_aceptance_token(public_key):
-    url = f"{settings.WOMPI_SANDBOX_URL}/v1/merchants/{public_key}/acceptance_token"
-    response = requests.get(url, timeout=10)
-    if response.status_code == 404:
-        raise ValueError('La cuenta Wompi sandbox aún no está activada o la llave pública no es válida. Verifica en el dashboard de Wompi que tu comercio esté aprobado.')
-    if response.status_code == 401:
-        raise ValueError('Autenticación inválida de Wompi. Revisa la llave pública y la llave privada en tu .env.')
-    if response.status_code == 403:
-        raise ValueError('Acceso denegado a Wompi. Tu cuenta sandbox puede estar en revisión o no tener permisos suficientes.')
-    response.raise_for_status()
-    return response.json().get('data', {}).get('presigned_acceptance_token')
 
 
 def obtener_pedidos_grupo(pedido):
@@ -339,57 +327,66 @@ def pagar_pedido(request, pedido_id):
     total = calcular_total_pedido(pedidos)
     reference = f"pedido-{pedido.id}-{pedido.pedido_grupo or pedido.id}"
 
+    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
+    if not access_token:
+        messages.error(request, 'No se ha configurado Mercado Pago. Contacta al administrador.')
+        return redirect('mis_pedidos')
+
+    items = []
+    for item in pedidos:
+        items.append({
+            'title': f'{item.producto.nombre_flor}',
+            'quantity': item.cantidad,
+            'unit_price': float(item.producto.precio_por_tallo),
+            'currency_id': 'COP',
+        })
+
+    payload = {
+        'items': items,
+        'payer': {
+            'email': request.user.email,
+        },
+        'back_urls': {
+            'success': settings.MERCADOPAGO_REDIRECT_URL,
+            'failure': settings.MERCADOPAGO_REDIRECT_URL,
+            'pending': settings.MERCADOPAGO_REDIRECT_URL,
+        },
+        'auto_return': 'approved',
+        'external_reference': reference,
+    }
+
     try:
-        acceptance_token = obtener_aceptance_token(settings.WOMPI_PUBLIC_KEY)
-        if not acceptance_token:
-            raise ValueError('No se obtuvo el token de aceptación de Wompi.')
-
-        payload = {
-            'acceptance_token': acceptance_token,
-            'amount_in_cents': int(total * 100),
-            'currency': 'COP',
-            'customer_email': request.user.email,
-            'payment_method': {'type': 'NEQUI'},
-            'reference': reference,
-            'redirect_url': settings.WOMPI_REDIRECT_URL,
-            'metadata': {
-                'pedido_id': str(pedido.id),
-                'pedido_grupo': str(pedido.pedido_grupo) if pedido.pedido_grupo else '',
-            }
-        }
-
         response = requests.post(
-            f"{settings.WOMPI_SANDBOX_URL}/v1/transactions",
+            f"{settings.MERCADOPAGO_API_URL}/checkout/preferences",
             json=payload,
-            headers={'Authorization': f'Bearer {settings.WOMPI_PRIVATE_KEY}'},
-            timeout=10
+            headers={
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json',
+            },
+            timeout=10,
         )
         response.raise_for_status()
-        data = response.json().get('data', {})
-        transaction = data.get('transaction', data)
+        data = response.json()
+        preference_id = data.get('id')
+        redirect_url = data.get('sandbox_init_point') or data.get('init_point')
 
-        pedido.wompi_transaction_id = transaction.get('id')
-        pedido.wompi_reference = reference
+        pedido.pago_transaction_id = preference_id or ''
+        pedido.pago_reference = reference
         pedido.estado_pago = 'pendiente'
         pedido.save()
 
-        redirect_url = transaction.get('redirect_url') or data.get('presigned_acceptance_url') or data.get('payment_method', {}).get('type')
         if redirect_url:
             return redirect(redirect_url)
 
-        messages.error(request, 'No se pudo generar la página de pago de Wompi. Intenta de nuevo más tarde.')
+        messages.error(request, 'No se pudo generar la página de pago de Mercado Pago. Intenta de nuevo más tarde.')
     except Exception as exc:
-        messages.error(request, f"Error al crear pago con Wompi: {exc}")
+        messages.error(request, f"Error al crear pago con Mercado Pago: {exc}")
 
     return redirect('mis_pedidos')
 
 
-def wompi_retorno(request):
-    messages.success(request, 'Tu pago está en proceso de verificación. Si fue aprobado, el pedido se actualizará pronto.')
-    return redirect('mis_pedidos')
-
-
-def wompi_webhook(request):
+@csrf_exempt
+def mercadopago_webhook(request):
     if request.method != 'POST':
         return HttpResponseBadRequest('Método no permitido')
 
@@ -398,15 +395,29 @@ def wompi_webhook(request):
     except json.JSONDecodeError:
         return HttpResponseBadRequest('JSON inválido')
 
-    event_data = payload.get('data', {})
-    transaction = event_data.get('transaction', event_data)
-    reference = transaction.get('reference')
-    status = transaction.get('status')
+    payment_id = payload.get('data', {}).get('id')
+    if not payment_id:
+        return HttpResponseBadRequest('ID de pago ausente')
+
+    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
+    try:
+        response = requests.get(
+            f"{settings.MERCADOPAGO_API_URL}/v1/payments/{payment_id}",
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=10,
+        )
+        response.raise_for_status()
+        payment = response.json()
+    except Exception:
+        return HttpResponse('No se pudo verificar el pago', status=500)
+
+    reference = payment.get('external_reference')
+    status = payment.get('status')
 
     if not reference:
         return HttpResponseBadRequest('Referencia ausente')
 
-    pedidos = Pedido.objects.filter(wompi_reference=reference)
+    pedidos = Pedido.objects.filter(pago_reference=reference)
     if not pedidos.exists() and '-' in reference:
         ref_parts = reference.split('-', 2)
         if len(ref_parts) >= 2:
@@ -416,13 +427,13 @@ def wompi_webhook(request):
     if not pedidos.exists():
         return HttpResponse('Pedido no encontrado', status=404)
 
-    if status == 'APPROVED':
+    if status == 'approved':
         for item in pedidos:
             item.estado_pago = 'pagado'
             item.save()
         return HttpResponse('Pago aprobado')
 
-    if status in ['DECLINED', 'ERROR', 'VOIDED']:
+    if status in ['cancelled', 'refunded', 'rejected']:
         for item in pedidos:
             if item.estado == 'pendiente':
                 item.estado = 'cancelado'
@@ -430,7 +441,7 @@ def wompi_webhook(request):
                 item.producto.cantidad_disponible += item.cantidad
                 item.producto.save()
                 item.save()
-        return HttpResponse('Pago rechazado, pedido cancelado')
+        return HttpResponse('Pago rechazado o cancelado')
 
     return HttpResponse('Evento procesado')
 
