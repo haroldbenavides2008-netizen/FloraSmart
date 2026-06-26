@@ -474,6 +474,7 @@ def mis_pedidos_view(request):
         if llave not in grupos:
             grupos[llave] = {
                 'clave': llave,
+                'id': pedido.id,
                 'representante_id': pedido.id,
                 'cliente': pedido.cliente,
                 'direccion_entrega': pedido.direccion_entrega,
