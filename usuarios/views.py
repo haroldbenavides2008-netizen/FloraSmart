@@ -1,6 +1,5 @@
 import json
 import uuid
-import requests
 
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,7 +10,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 
 # Importación de modelos y formularios
 from .models import Usuario, Producto, Pedido, MensajeChat
@@ -298,8 +296,6 @@ def realizar_pedido_carrito(request):
     messages.success(request, f"¡Pedido solicitado! Has pedido {cantidad_total} tallo(s) de {mensaje_productos}.")
     return redirect('mis_pedidos')
 
-# Helpers para pagos Mercado Pago
-
 def calcular_total_pedido(pedidos):
     return sum(item.cantidad * item.producto.precio_por_tallo for item in pedidos)
 
@@ -309,141 +305,6 @@ def obtener_pedidos_grupo(pedido):
         return list(Pedido.objects.filter(pedido_grupo=pedido.pedido_grupo))
     return [pedido]
 
-
-def pagar_pedido(request, pedido_id):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    pedido = get_object_or_404(Pedido, id=pedido_id, cliente=request.user)
-    if pedido.estado != 'pendiente':
-        messages.error(request, 'Solo es posible pagar pedidos pendientes.')
-        return redirect('mis_pedidos')
-
-    if pedido.estado_pago == 'pagado':
-        messages.info(request, 'Este pedido ya está pagado.')
-        return redirect('mis_pedidos')
-
-    pedidos = obtener_pedidos_grupo(pedido)
-    total = calcular_total_pedido(pedidos)
-    reference = f"pedido-{pedido.id}-{pedido.pedido_grupo or pedido.id}"
-
-    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
-    if not access_token:
-        messages.error(request, 'No se ha configurado Mercado Pago. Contacta al administrador.')
-        return redirect('mis_pedidos')
-
-    items = []
-    for item in pedidos:
-        items.append({
-            'title': f'{item.producto.nombre_flor}',
-            'quantity': item.cantidad,
-            'unit_price': float(item.producto.precio_por_tallo),
-            'currency_id': 'COP',
-        })
-
-    payload = {
-        'items': items,
-        'payer': {
-            'email': request.user.email,
-        },
-        'back_urls': {
-            'success': settings.MERCADOPAGO_REDIRECT_URL,
-            'failure': settings.MERCADOPAGO_REDIRECT_URL,
-            'pending': settings.MERCADOPAGO_REDIRECT_URL,
-        },
-        'auto_return': 'approved',
-        'external_reference': reference,
-    }
-
-    try:
-        response = requests.post(
-            f"{settings.MERCADOPAGO_API_URL}/checkout/preferences",
-            json=payload,
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json',
-            },
-            timeout=10,
-        )
-        response.raise_for_status()
-        data = response.json()
-        preference_id = data.get('id')
-        redirect_url = data.get('sandbox_init_point') or data.get('init_point')
-
-        pedido.pago_transaction_id = preference_id or ''
-        pedido.pago_reference = reference
-        pedido.estado_pago = 'pendiente'
-        pedido.save()
-
-        if redirect_url:
-            return redirect(redirect_url)
-
-        messages.error(request, 'No se pudo generar la página de pago de Mercado Pago. Intenta de nuevo más tarde.')
-    except Exception as exc:
-        messages.error(request, f"Error al crear pago con Mercado Pago: {exc}")
-
-    return redirect('mis_pedidos')
-
-
-@csrf_exempt
-def mercadopago_webhook(request):
-    if request.method != 'POST':
-        return HttpResponseBadRequest('Método no permitido')
-
-    try:
-        payload = json.loads(request.body.decode('utf-8'))
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest('JSON inválido')
-
-    payment_id = payload.get('data', {}).get('id')
-    if not payment_id:
-        return HttpResponseBadRequest('ID de pago ausente')
-
-    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
-    try:
-        response = requests.get(
-            f"{settings.MERCADOPAGO_API_URL}/v1/payments/{payment_id}",
-            headers={'Authorization': f'Bearer {access_token}'},
-            timeout=10,
-        )
-        response.raise_for_status()
-        payment = response.json()
-    except Exception:
-        return HttpResponse('No se pudo verificar el pago', status=500)
-
-    reference = payment.get('external_reference')
-    status = payment.get('status')
-
-    if not reference:
-        return HttpResponseBadRequest('Referencia ausente')
-
-    pedidos = Pedido.objects.filter(pago_reference=reference)
-    if not pedidos.exists() and '-' in reference:
-        ref_parts = reference.split('-', 2)
-        if len(ref_parts) >= 2:
-            pedido_id = ref_parts[1]
-            pedidos = Pedido.objects.filter(id=pedido_id)
-
-    if not pedidos.exists():
-        return HttpResponse('Pedido no encontrado', status=404)
-
-    if status == 'approved':
-        for item in pedidos:
-            item.estado_pago = 'pagado'
-            item.save()
-        return HttpResponse('Pago aprobado')
-
-    if status in ['cancelled', 'refunded', 'rejected']:
-        for item in pedidos:
-            if item.estado == 'pendiente':
-                item.estado = 'cancelado'
-                item.estado_pago = 'cancelado'
-                item.producto.cantidad_disponible += item.cantidad
-                item.producto.save()
-                item.save()
-        return HttpResponse('Pago rechazado o cancelado')
-
-    return HttpResponse('Evento procesado')
 
 # 8. VISTA DE MIS PEDIDOS / PEDIDOS RECIBIDOS
 def mis_pedidos_view(request):

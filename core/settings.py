@@ -184,30 +184,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 # 12. Usuario Personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-# 13. Configuración de Mercado Pago
-MERCADOPAGO_ACCESS_TOKEN = os.getenv(
-    'MERCADOPAGO_ACCESS_TOKEN',
-    'your_access_token_here'
-)
-
-MERCADOPAGO_PUBLIC_KEY = os.getenv(
-    'MERCADOPAGO_PUBLIC_KEY',
-    'your_public_key_here'
-)
-
-MERCADOPAGO_REDIRECT_URL = os.getenv(
-    'MERCADOPAGO_REDIRECT_URL',
-    'http://localhost:8000/mis-pedidos/'
-)
-
-MERCADOPAGO_WEBHOOK_URL = os.getenv(
-    'MERCADOPAGO_WEBHOOK_URL',
-    'http://localhost:8000/pagos/mercadopago/webhook/'
-)
-
-MERCADOPAGO_API_URL = 'https://api.mercadopago.com'
-
-# 14. Firebase (solo si existe configuración)
+# 13. Firebase (solo si existe configuración)
+firebase_cred_path = os.getenv('FIREBASE_CREDENTIALS')
 firebase_cred_path = os.getenv('FIREBASE_CREDENTIALS')
 
 if firebase_cred_path and os.path.exists(firebase_cred_path):

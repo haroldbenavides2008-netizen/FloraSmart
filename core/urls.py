@@ -48,10 +48,6 @@ urlpatterns = [
     path('mercado/', views.mercado_view, name='mercado'),
     path('realizar-pedido/<int:producto_id>/', views.realizar_pedido, name='realizar_pedido'),
     path('realizar-pedido-carrito/', views.realizar_pedido_carrito, name='realizar_pedido_carrito'),
-    path('pedidos/<int:pedido_id>/pagar/', views.pagar_pedido, name='pagar_pedido'),
-
-    # Mercado Pago Webhook
-    path('pagos/mercadopago/webhook/', views.mercadopago_webhook, name='mercadopago_webhook'),
 
     # Pedidos
     path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
