@@ -27,9 +27,6 @@
                             <th>{% if request.session.language == 'en' %}Qty{% else %}Cant.{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Date{% else %}Fecha{% endif %}</th>
                             <th>{% if request.session.language == 'en' %}Status{% else %}Estado{% endif %}</th>
-                            {% if request.user.rol != 'floricultor' %}
-                                <th>{% if request.session.language == 'en' %}Payment{% else %}Pago{% endif %}</th>
-                            {% endif %}
                             <th class="text-center">{% if request.session.language == 'en' %}Actions{% else %}Acciones{% endif %}</th>
                         </tr>
                     </thead>
@@ -58,20 +55,7 @@
                             </td>
                             <td><span class="badge rounded-pill badge-cantidad">{{ orden.cantidad_total }} u.</span></td>
                             <td>{{ orden.fecha_pedido|date:"d/m/Y" }}</td>
-                            <td><span class="badge bg-info">{{ orden.estado }}</span></td>
-                            {% if request.user.rol != 'floricultor' %}
-                                <td>
-                                    {% if orden.estado_pago == 'pagado' %}
-                                        <span class="badge bg-success">✓ {% if request.session.language == 'en' %}Paid{% else %}Pagado{% endif %}</span>
-                                    {% elif orden.estado_pago == 'rechazado' %}
-                                        <span class="badge bg-danger">✗ {% if request.session.language == 'en' %}Rejected{% else %}Rechazado{% endif %}</span>
-                                    {% elif orden.estado_pago == 'cancelado' %}
-                                        <span class="badge bg-secondary">{% if request.session.language == 'en' %}Cancelled{% else %}Cancelado{% endif %}</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">⏳ {% if request.session.language == 'en' %}Pending{% else %}Pendiente{% endif %}</span>
-                                    {% endif %}
-                                </td>
-                            {% endif %}
+                            <td><span class="badge bg-info">{{ orden.estado_display }}</span></td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-success" 
                                         data-bs-toggle="modal" 
@@ -82,8 +66,7 @@
                                         data-cantidad="{{ orden.cantidad_total }}"
                                         data-numero-items="{{ orden.numero_items }}"
                                         data-fecha="{{ orden.fecha_pedido|date:'d/m/Y H:i' }}"
-                                        data-estado="{{ orden.estado }}"
-                                        data-estado-pago="{{ orden.estado_pago }}"
+                                        data-estado="{{ orden.estado_display }}"
                                         data-total-pagar="{{ orden.total_pagar }}"
                                         data-direccion="{{ orden.direccion_entrega|default:'-'|escapejs }}"
                                         data-notas="{{ orden.notas_adicionales|default:'-'|escapejs }}"
@@ -108,26 +91,24 @@
                                 {% endif %}
 
                                 {% if request.user.rol == 'floricultor' %}
-                                    {% if orden.estado_pago == 'pagado' %}
-                                        {% if orden.estado == 'pendiente' %}
-                                            <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="estado" value="en_camino">
-                                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Marcar como En Camino">
-                                                    🚚 En Camino
-                                                </button>
-                                            </form>
-                                        {% elif orden.estado == 'en_camino' %}
-                                            <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="estado" value="entregado">
-                                                <button type="submit" class="btn btn-sm btn-outline-primary" title="Marcar como Entregado">
-                                                    ✅ Entregado
-                                                </button>
-                                            </form>
-                                        {% endif %}
+                                    {% if orden.estado == 'pendiente' %}
+                                        <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="estado" value="en_camino">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Marcar como En Camino">
+                                                🚚 En Camino
+                                            </button>
+                                        </form>
+                                    {% elif orden.estado == 'en_camino' %}
+                                        <form method="POST" action="{% url 'cambiar_estado_pedido' orden.representante_id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="estado" value="entregado">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary" title="Marcar como Entregado">
+                                                ✅ Entregado
+                                            </button>
+                                        </form>
                                     {% else %}
-                                        <span class="badge bg-warning-light">{% if request.session.language == 'en' %}Awaiting payment{% else %}Esperando pago{% endif %}</span>
+                                        <span class="badge bg-success">{{ orden.estado_display }}</span>
                                     {% endif %}
                                 {% endif %}
                             </td>
@@ -169,9 +150,6 @@
                     <strong>{% if request.session.language == 'en' %}Status{% else %}Estado{% endif %}:</strong> <span id="modal-estado"></span>
                 </div>
                 <div class="mb-3">
-                    <strong>{% if request.session.language == 'en' %}Payment Status{% else %}Estado de Pago{% endif %}:</strong> <span id="modal-estado-pago"></span>
-                </div>
-                <div class="mb-3">
                     <strong>{% if request.session.language == 'en' %}Total to Pay{% else %}Total a Pagar{% endif %}:</strong> <span id="modal-total-pagar"></span>
                 </div>
                 <div class="mb-3">
@@ -207,18 +185,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var cantidad = button.getAttribute('data-cantidad');
         var fecha = button.getAttribute('data-fecha');
         var estado = button.getAttribute('data-estado');
-        var estadoPago = button.getAttribute('data-estado-pago') || 'pendiente';
         var totalPagar = button.getAttribute('data-total-pagar') || '0';
         var direccion = button.getAttribute('data-direccion') || '-';
         var notas = button.getAttribute('data-notas') || '-';
-
-        // Mapeo de estados de pago
-        var estadoPagoMap = {
-            'pagado': '✓ Pagado',
-            'rechazado': '✗ Rechazado',
-            'cancelado': 'Cancelado',
-            'pendiente': '⏳ Pendiente'
-        };
 
         document.getElementById('modal-nombre-comprador').textContent = nombreComprador;
         document.getElementById('modal-finca').textContent = finca;
@@ -227,7 +196,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-cantidad').textContent = cantidad + ' u.';
         document.getElementById('modal-fecha').textContent = fecha;
         document.getElementById('modal-estado').textContent = estado;
-        document.getElementById('modal-estado-pago').textContent = estadoPagoMap[estadoPago] || estadoPago;
         document.getElementById('modal-total-pagar').textContent = '$' + parseFloat(totalPagar).toLocaleString('es-CO', {minimumFractionDigits: 2});
         document.getElementById('modal-direccion').textContent = direccion;
         document.getElementById('modal-notas').textContent = notas;

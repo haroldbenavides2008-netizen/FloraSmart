@@ -342,6 +342,7 @@ def mis_pedidos_view(request):
                 'notas_adicionales': pedido.notas_adicionales,
                 'fecha_pedido': pedido.fecha_pedido,
                 'estado': pedido.estado,
+                'estado_display': pedido.get_estado_display(),
                 'items': [],
                 'cantidad_total': 0,
                 'productos_resumen': '',
@@ -360,8 +361,7 @@ def mis_pedidos_view(request):
         orden['productos_resumen'] = ', '.join(productos)
         orden['primer_item'] = orden['items'][0]
         orden['numero_items'] = len(orden['items'])
-        # Estado de pago: obtener del primer item (todos deben ser iguales)
-        orden['estado_pago'] = orden['items'][0].estado_pago if orden['items'] else 'pendiente'
+        orden['estado_display'] = orden['items'][0].get_estado_display() if orden['items'] else 'Pendiente'
         orden['total_pagar'] = calcular_total_pedido(orden['items'])
 
     ordenes = list(grupos.values())
