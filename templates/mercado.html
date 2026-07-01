@@ -1190,6 +1190,26 @@
     </div>
 </div>
 
+<!-- Modal de confirmación de contraentrega -->
+<div class="modal fade" id="confirmContraEntregaModal" tabindex="-1" aria-labelledby="confirmContraEntregaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-success shadow-sm">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="confirmContraEntregaModalLabel">{% if request.session.language == 'en' %}Confirm payment method{% else %}Confirmar método de pago{% endif %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">{% if request.session.language == 'en' %}Your order will be processed with cash on delivery. Please keep the payment ready when you receive the flowers.{% else %}Tu pedido se procesará con pago contraentrega. Por favor ten el pago listo al recibir las flores.{% endif %}</p>
+                <p class="small text-muted">{% if request.session.language == 'en' %}You can cancel if you want to review your order again.{% else %}Puedes cancelar si deseas revisar tu pedido nuevamente.{% endif %}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% if request.session.language == 'en' %}Cancel{% else %}Cancelar{% endif %}</button>
+                <button type="button" class="btn btn-success" id="confirmContraEntregaAccept">{% if request.session.language == 'en' %}Accept{% else %}Aceptar{% endif %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let productoActual = {
         id: null,
@@ -1386,13 +1406,13 @@
         document.getElementById('carritoNotas').value = notas;
         document.getElementById('cartData').value = JSON.stringify(carrito);
 
-        const confirmMessage = '{% if request.session.language == 'en' %}By placing this order you accept that payment will be cash on delivery (contraentrega). Continue?{% else %}Al realizar este pedido aceptas que el pago será contraentrega. ¿Continuar?{% endif %}';
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
-        document.getElementById('carritoForm').submit();
+        var confirmModal = new bootstrap.Modal(document.getElementById('confirmContraEntregaModal'));
+        confirmModal.show();
     }
+
+    document.getElementById('confirmContraEntregaAccept').addEventListener('click', function() {
+        document.getElementById('carritoForm').submit();
+    });
 
     document.getElementById('carritoModal').addEventListener('click', function(e) {
         if (e.target === this) {
