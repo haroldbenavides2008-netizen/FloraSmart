@@ -1170,6 +1170,13 @@
                     <label for="checkoutNotas" class="form-label">{% if request.session.language == 'en' %}Notes{% else %}Notas{% endif %}</label>
                     <textarea id="checkoutNotas" class="form-control" rows="3" placeholder="{% if request.session.language == 'en' %}Delivery notes or preferences{% else %}Notas o preferencias de entrega{% endif %}"></textarea>
                 </div>
+                <div class="alert alert-info mb-3 small" role="alert">
+                    {% if request.session.language == 'en' %}
+                        Payments will be made cash on delivery (contraentrega).
+                    {% else %}
+                        Los pagos serán contraentrega.
+                    {% endif %}
+                </div>
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <strong>{% if request.session.language == 'en' %}Order total{% else %}Total del pedido{% endif %}:</strong>
                     <span id="checkoutTotal">$0 COP</span>
@@ -1378,6 +1385,11 @@
         document.getElementById('carritoDireccion').value = direccion;
         document.getElementById('carritoNotas').value = notas;
         document.getElementById('cartData').value = JSON.stringify(carrito);
+
+        const confirmMessage = '{% if request.session.language == 'en' %}By placing this order you accept that payment will be cash on delivery (contraentrega). Continue?{% else %}Al realizar este pedido aceptas que el pago será contraentrega. ¿Continuar?{% endif %}';
+        if (!confirm(confirmMessage)) {
+            return;
+        }
 
         document.getElementById('carritoForm').submit();
     }
