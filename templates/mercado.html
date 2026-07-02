@@ -1146,8 +1146,10 @@
 <form id="carritoForm" method="POST" action="{% url 'realizar_pedido_carrito' %}" style="display:none;">
     {% csrf_token %}
     <input type="hidden" name="cart_data" id="cartData" value="">
+    <input type="hidden" name="ciudad_entrega" id="carritoCiudad" value="">
     <input type="hidden" name="direccion_entrega" id="carritoDireccion" value="">
     <input type="hidden" name="notas_adicionales" id="carritoNotas" value="">
+    <input type="hidden" name="tarifa_domicilio" id="carritoTarifa" value="">
 </form>
 
 <!-- Modal de carrito -->
@@ -1163,6 +1165,16 @@
                 <div id="cartEmptyMessage" class="text-center text-muted py-4">{% if request.session.language == 'en' %}Your cart is empty.{% else %}Tu carrito está vacío.{% endif %}</div>
 
                 <div class="mb-3">
+                    <label for="checkoutCiudad" class="form-label">{% if request.session.language == 'en' %}Delivery City{% else %}Ciudad de entrega {% endif %}<span class="text-danger">*</span></label>
+                    <select id="checkoutCiudad" class="form-control" onchange="actualizarTarifaDomicilio()" required>
+                        <option value="">{% if request.session.language == 'en' %}Select a city{% else %}Selecciona una ciudad{% endif %}</option>
+                        <option value="mosquera" data-tarifa="8000">Mosquera - $8.000</option>
+                        <option value="madrid" data-tarifa="9500">Madrid - $9.500</option>
+                        <option value="bogota" data-tarifa="12000">Bogotá - $12.000</option>
+                        <option value="facatativa" data-tarifa="11000">Facatativá - $11.000</option>
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label for="checkoutDireccion" class="form-label">{% if request.session.language == 'en' %}Delivery Address{% else %}Dirección de entrega{% endif %}</label>
                     <input type="text" id="checkoutDireccion" class="form-control" placeholder="{% if request.session.language == 'en' %}Enter delivery address{% else %}Ingresa la dirección de entrega{% endif %}">
                 </div>
@@ -1171,10 +1183,18 @@
                     <textarea id="checkoutNotas" class="form-control" rows="3" placeholder="{% if request.session.language == 'en' %}Delivery notes or preferences{% else %}Notas o preferencias de entrega{% endif %}"></textarea>
                 </div>
                 <div class="contraentrega-notice mb-3">
-                    <strong>{% if request.session.language == 'en' %}Pago contraentrega{% else %}Pago contraentrega{% endif %}</strong>
-                    <p>{% if request.session.language == 'en' %}El pago se realizará al momento de recibir tu pedido. Mantén el efectivo listo para la entrega.{% else %}El pago se realizará al momento de recibir tu pedido. Mantén el efectivo listo para la entrega.{% endif %}</p>
+                    <strong>{% if request.session.language == 'en' %}Delivery charge{% else %}Tarifa de domicilio{% endif %}</strong>
+                    <p>{% if request.session.language == 'en' %}Se cobrará una tarifa adicional por el servicio de domicilio según la ciudad seleccionada.{% else %}Se cobrará una tarifa adicional por el servicio de domicilio según la ciudad seleccionada.{% endif %}</p>
                 </div>
-                <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+                    <span>{% if request.session.language == 'en' %}Subtotal{% else %}Subtotal{% endif %}:</span>
+                    <span id="checkoutSubtotal">$0 COP</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% if request.session.language == 'en' %}Delivery charge{% else %}Tarifa de domicilio{% endif %}:</span>
+                    <span id="checkoutTarifaDomicilio">$0 COP</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4" style="border-top: 2px solid #ddd; padding-top: 10px;">
                     <strong>{% if request.session.language == 'en' %}Order total{% else %}Total del pedido{% endif %}:</strong>
                     <span id="checkoutTotal">$0 COP</span>
                 </div>
@@ -1192,15 +1212,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content contraentrega-modal shadow-sm">
             <div class="modal-header contraentrega-modal-header">
-                <h5 class="modal-title" id="confirmContraEntregaModalLabel">{% if request.session.language == 'en' %}Confirm payment method{% else %}Confirmar método de pago{% endif %}</h5>
+                <h5 class="modal-title" id="confirmContraEntregaModalLabel">{% if request.session.language == 'en' %}Confirm order{% else %}Confirmar pedido{% endif %}</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="contraentrega-card">
                     <div class="contraentrega-icon">💐</div>
                     <div>
-                        <p class="contraentrega-title">{% if request.session.language == 'en' %}Payment on delivery{% else %}Pago al recibir{% endif %}</p>
-                        <p class="contraentrega-text">{% if request.session.language == 'en' %}Tu pedido será entregado y el pago se realizará en el momento de la entrega. Ten el efectivo listo para recibir tus flores.{% else %}Tu pedido será entregado y el pago se realizará en el momento de la entrega. Ten el efectivo listo para recibir tus flores.{% endif %}</p>
+                        <p class="contraentrega-title">{% if request.session.language == 'en' %}Order summary{% else %}Resumen del pedido{% endif %}</p>
+                        <p class="contraentrega-text">{% if request.session.language == 'en' %}Tu pedido será entregado en la dirección especificada. La tarifa de domicilio está incluida en el total. El pago se realizará al momento de la entrega.{% else %}Tu pedido será entregado en la dirección especificada. La tarifa de domicilio está incluida en el total. El pago se realizará al momento de la entrega.{% endif %}</p>
                     </div>
                 </div>
             </div>
@@ -1319,10 +1339,14 @@
         const cartTotal = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
         const cartCountElement = document.getElementById('cartCount');
         const cartTotalText = document.getElementById('cartTotalText');
+        const checkoutSubtotal = document.getElementById('checkoutSubtotal');
         const checkoutTotal = document.getElementById('checkoutTotal');
+        
         if (cartCountElement) cartCountElement.textContent = cartCount;
         if (cartTotalText) cartTotalText.textContent = `Total: $${cartTotal.toLocaleString('es-CO')} COP`;
-        if (checkoutTotal) checkoutTotal.textContent = `$${cartTotal.toLocaleString('es-CO')} COP`;
+        if (checkoutSubtotal) checkoutSubtotal.textContent = `$${cartTotal.toLocaleString('es-CO')} COP`;
+        
+        actualizarTarifaDomicilio();
 
         const container = document.getElementById('cartItemsContainer');
         if (!container) return;
@@ -1390,22 +1414,49 @@
         }
     });
 
+    function actualizarTarifaDomicilio() {
+        const ciudadSelect = document.getElementById('checkoutCiudad');
+        const selectedOption = ciudadSelect.options[ciudadSelect.selectedIndex];
+        const tarifa = selectedOption.getAttribute('data-tarifa') || 0;
+        const tarifaNumero = parseInt(tarifa);
+        
+        const cartTotal = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+        const totalConTarifa = cartTotal + tarifaNumero;
+        
+        const checkoutTarifaDomicilio = document.getElementById('checkoutTarifaDomicilio');
+        const checkoutTotal = document.getElementById('checkoutTotal');
+        
+        if (checkoutTarifaDomicilio) checkoutTarifaDomicilio.textContent = `$${tarifaNumero.toLocaleString('es-CO')} COP`;
+        if (checkoutTotal) checkoutTotal.textContent = `$${totalConTarifa.toLocaleString('es-CO')} COP`;
+    }
+
     function finalizarCompra() {
         if (!carrito.length) {
             alert('Tu carrito está vacío.');
             return;
         }
 
+        const ciudad = document.getElementById('checkoutCiudad').value.trim();
+        const ciudadSelect = document.getElementById('checkoutCiudad');
+        const selectedOption = ciudadSelect.options[ciudadSelect.selectedIndex];
+        const tarifa = selectedOption.getAttribute('data-tarifa') || 0;
         const direccion = document.getElementById('checkoutDireccion').value.trim();
         const notas = document.getElementById('checkoutNotas').value.trim();
+
+        if (!ciudad) {
+            alert('Por favor selecciona una ciudad de entrega.');
+            return;
+        }
 
         if (!direccion) {
             alert('Por favor ingresa una dirección de entrega.');
             return;
         }
 
+        document.getElementById('carritoCiudad').value = ciudad;
         document.getElementById('carritoDireccion').value = direccion;
         document.getElementById('carritoNotas').value = notas;
+        document.getElementById('carritoTarifa').value = tarifa;
         document.getElementById('cartData').value = JSON.stringify(carrito);
 
         var confirmModal = new bootstrap.Modal(document.getElementById('confirmContraEntregaModal'));
